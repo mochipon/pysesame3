@@ -6,7 +6,7 @@ _Unofficial Python Library to communicate with Sesame smart locks made by CANDY 
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pysesame3)
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/mochipon/pysesame3/dev%20workflow/main)
 [![Documentation Status](https://readthedocs.org/projects/pysesame3/badge/?version=latest)](https://pysesame3.readthedocs.io/en/latest/?badge=latest)
-[![codecov](https://codecov.io/gh/mochipon/pysesame3/branch/main/graph/badge.svg?token=Ywz5rHbt6O)](https://codecov.io/gh/mochipon/pysesame3)
+[![codecov](https://codecov.io/gh/mochipon/pysesame3/branch/main/graph/badge.svg?token=2Y7OPZTILT)](https://codecov.io/gh/mochipon/pysesame3)
 ![PyPI - License](https://img.shields.io/pypi/l/pysesame3)
 
 * Free software: MIT license
