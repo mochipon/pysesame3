@@ -77,7 +77,13 @@ $ git checkout -b name-of-your-bugfix-or-feature
 $ tox
 ```
 
-7. Commit your changes and push your branch to GitHub:
+7. Set up pre-commit hooks for automatic code formatting and linting:
+
+```
+$ pre-commit install
+```
+
+8. Commit your changes and push your branch to GitHub:
 
 ```
 $ git add .
@@ -85,7 +91,7 @@ $ git commit -m "Your detailed description of your changes."
 $ git push origin name-of-your-bugfix-or-feature
 ```
 
-8. Submit a pull request through the GitHub website.
+9. Submit a pull request through the GitHub website.
 
 ## Pull Request Guidelines
 
@@ -101,11 +107,17 @@ Before you submit a pull request, check that it meets these guidelines:
 
 ## Tips
 
+To run a subset of tests:
+
 ```
 $ pytest tests.test_pysesame3
 ```
 
-To run a subset of tests.
+To invoke the pre-commit hook manually:
+
+```
+$ pre-commit run
+```
 
 
 ## Deploying

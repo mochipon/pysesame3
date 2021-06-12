@@ -16,11 +16,14 @@ _Unofficial Python Library to communicate with Sesame smart locks made by CANDY 
 
 Please note that `pysesame3` can only control [SESAME 3](https://jp.candyhouse.co/products/sesame3) at this moment.
 
-* User authentication by verification code using email.
 * Retrive a list of SESAME locks that the user is authorized to use.
 * Retrive a status of a SESAME lock (locked, handle position, etc.).
 * Retrive recent events (locked, unlocked, etc.) associated with a lock.
 * Needless to say, locking and unlocking!
+
+## Usage
+
+Please take a look at [the documentation](https://pysesame3.readthedocs.io/en/latest/usage/).
 
 ## Credits & Thanks
 
