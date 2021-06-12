@@ -151,4 +151,4 @@ class SesameLocker(CHDevices):
         Returns:
             str: The string representation of the object.
         """
-        return f"SesameLocker(deviceUUID={self.getDeviceUUID()}, deviceModel={self.productModel}, secretKey={self.getSecretKey()}, sesame2PublicKey={self.getSesame2PublicKey()})"
+        return f"SesameLocker(deviceUUID={self.getDeviceUUID()}, deviceModel={self.productModel}, sesame2PublicKey={self.getSesame2PublicKey()})"

@@ -87,7 +87,7 @@ class TestCHSesame2:
         )
         assert (
             str(self.key_locked)
-            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, secretKey=0b3e5f1665e143b59180c915fa4b06d9, sesame2PublicKey=None, mechStatus=CHSesame2MechStatus(Battery=67% (5.87V), isInLockRange=True, isInUnlockRange=False, Position=11))"
+            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, sesame2PublicKey=None, mechStatus=CHSesame2MechStatus(Battery=67% (5.87V), isInLockRange=True, isInUnlockRange=False, Position=11))"
         )
 
     def test_CHSesame2_setDeviceShadowStatus_toggle(self):
