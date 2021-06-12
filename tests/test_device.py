@@ -129,5 +129,5 @@ class TestSesameLocker:
 
         assert (
             str(d)
-            == "SesameLocker(deviceUUID=42918AD1-8154-4AFF-BD1F-F0CDE88A8DE1, deviceModel=CHProductModel.SS2, secretKey=FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE, sesame2PublicKey=TestPubKey)"
+            == "SesameLocker(deviceUUID=42918AD1-8154-4AFF-BD1F-F0CDE88A8DE1, deviceModel=CHProductModel.SS2, sesame2PublicKey=TestPubKey)"
         )
