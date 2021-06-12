@@ -5,6 +5,7 @@
 import uuid
 
 import pytest
+
 from pysesame3.auth import WebAPIAuth
 from pysesame3.device import CHDevices, SesameLocker
 from pysesame3.helper import CHProductModel
@@ -12,7 +13,7 @@ from pysesame3.helper import CHProductModel
 
 @pytest.fixture(autouse=True)
 def cl():
-    yield WebAPIAuth(apikey="FAKEAPIKEY")
+    yield WebAPIAuth(apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE")
 
 
 class TestCHDevices:
@@ -77,15 +78,20 @@ class TestSesameLocker:
     def test_SesameLocker_secretKey_raises_exception_on_invalid_value(self):
         d = SesameLocker(cl)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             d.setSecretKey(123)
+        assert "should be string" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            d.setSecretKey("FAKE")
+        assert "length should be 32" in str(excinfo.value)
 
     def test_CHDevices_secretKey(self):
         d = SesameLocker(cl)
 
         assert d.getSecretKey() is None
 
-        secret = "TestSecret"
+        secret = "FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE"
 
         assert d.setSecretKey(secret) is None
         assert d.getSecretKey() == secret
@@ -115,7 +121,7 @@ class TestSesameLocker:
         test_model = CHProductModel.SS2
         d.setProductModel(test_model)
 
-        secret = "TestSecret"
+        secret = "FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE"
         d.setSecretKey(secret)
 
         pubkey = "TestPubKey"
@@ -123,5 +129,5 @@ class TestSesameLocker:
 
         assert (
             str(d)
-            == "SesameLocker(deviceUUID=42918AD1-8154-4AFF-BD1F-F0CDE88A8DE1, deviceModel=CHProductModel.SS2, secretKey=TestSecret, sesame2PublicKey=TestPubKey)"
+            == "SesameLocker(deviceUUID=42918AD1-8154-4AFF-BD1F-F0CDE88A8DE1, deviceModel=CHProductModel.SS2, secretKey=FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE, sesame2PublicKey=TestPubKey)"
         )

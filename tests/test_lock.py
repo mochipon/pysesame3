@@ -4,6 +4,7 @@
 
 import pytest
 import requests_mock
+
 from pysesame3.auth import WebAPIAuth
 from pysesame3.lock import CHSesame2, CHSesame2ShadowStatus
 
@@ -35,17 +36,32 @@ def mock_requests():
 
 @pytest.fixture()
 def mock_cloud():
-    cl = WebAPIAuth(apikey="FAKEAPIKEY")
+    cl = WebAPIAuth(apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE")
     yield cl
 
 
 class TestCHSesame2Broken:
-    def test_CHSesame2_raises_exception_on_invalid_arguments(self):
+    def test_CHSesame2_raises_exception_on_missing_arguments(self):
         with pytest.raises(TypeError):
             CHSesame2()
 
         with pytest.raises(TypeError):
             CHSesame2(mock_cloud)
+
+    def test_CHSesame2_raises_exception_on_invalid_arguments(self):
+        with pytest.raises(ValueError):
+            key = {
+                "device_uuid": "FAKEUUID",
+                "secret_key": "0b3e5f1665e143b59180c915fa4b06d9",
+            }
+            CHSesame2(mock_cloud, **key)
+
+        with pytest.raises(ValueError):
+            key = {
+                "device_uuid": "126D3D66-9222-4E5A-BCDE-0C6629D48D43",
+                "secret_key": "FAKE_SECRET_KEY",
+            }
+            CHSesame2(mock_cloud, **key)
 
 
 class TestCHSesame2:
