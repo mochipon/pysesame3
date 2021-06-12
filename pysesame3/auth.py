@@ -10,6 +10,9 @@ class WebAPIAuth(requests.auth.AuthBase):
         """
         self._apikey = apikey
 
+        if len(self._apikey) != 40:
+            raise ValueError("Invalid API Key - length should be 40.")
+
     def __call__(self, r):
         r.headers["x-api-key"] = self._apikey
         return r

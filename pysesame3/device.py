@@ -127,7 +127,9 @@ class SesameLocker(CHDevices):
             ValueError: If `key` is invalid.
         """
         if not isinstance(key, str):
-            raise ValueError("Invalid SecretKey")
+            raise ValueError("Invalid SecretKey - should be string.")
+        if len(key) != 32:
+            raise ValueError("Invalid SecretKey - length should be 32.")
         self._secretKey = key
 
     def setSesame2PublicKey(self, key: str) -> None:
