@@ -84,7 +84,7 @@ class SesameCloud:
         bArr.append(((j2 >> 16) & 65535) & 0xFF)
         bArr.append(((j2 >> 24) & 65535) & 0xFF)
         secret = bytes.fromhex(self._device.getSecretKey())
-        cobj = CMAC.new(secret, ciphermod=AES, mac_len=4)
+        cobj = CMAC.new(secret, ciphermod=AES)
         cobj.update(bArr)
         sign = cobj.hexdigest()
 
