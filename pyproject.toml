@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "pysesame3"
-version = "0.2.1"
+version = "0.2.2"
 homepage = "https://github.com/mochipon/pysesame3"
 description = "Unofficial library to communicate with Sesame smart locks."
 authors = ["Masaki Tagawa <masaki@tagawa.email>"]
@@ -34,7 +34,7 @@ requests = { version = "2.25.1" }
 livereload = { version = "^2.6.3", optional = true }
 mkdocs = { version = "^1.1.2", optional = true }
 mkdocstrings = { version = "^0.13.6", optional = true }
-mkdocs-autorefs = { version = "0.2.1", optional = true }
+mkdocs-autorefs = { version = "0.2.2", optional = true }
 mkdocs-include-markdown-plugin = { version = "^1.0.0", optional = true }
 mkdocs-material = { version = "^6.1.7", optional = true }
 
