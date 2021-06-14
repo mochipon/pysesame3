@@ -79,21 +79,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install poetry tox tox-gh-actions
-          poetry install -E doc
-
-      - name: test with tox
-        run:
-          tox
-
-      - name: list files
-        run: ls -l .
-
-      - uses: codecov/codecov-action@v1
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
+          pip install poetry
 
       - name: Build wheels and source tarball
         run: |
