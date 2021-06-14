@@ -13,7 +13,7 @@ class CHDevices:
         """Generic Implementation for Candyhouse products.
 
         Args:
-            authenticator (WebAPIAuth)
+            authenticator (WebAPIAuth): The authenticator for the device
         """
         self._authenticator = authenticator
         self._deviceId = None
@@ -78,7 +78,7 @@ class SesameLocker(CHDevices):
         """Generic Implementation for Candyhouse smart locks.
 
         Args:
-            authenticator (WebAPIAuth)
+            authenticator (WebAPIAuth): The authenticator for the device
         """
         super().__init__(authenticator)
         self._mechStatus = None

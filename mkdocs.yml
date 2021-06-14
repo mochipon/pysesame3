@@ -2,9 +2,9 @@ site_name: pysesame3
 site_url: https://pysesame3.readthedocs.io/
 repo_url: https://github.com/mochipon/pysesame3
 repo_name: pysesame3
-#strict: true
+strict: true
 extra_css:
-  - styles/mkdocstrings-overrides.css
+  - styles/override.css
 nav:
   - Home: index.md
   - Installation: installation.md
@@ -26,22 +26,9 @@ theme:
     - navigation.instant
     - navigation.tabs.sticky
 markdown_extensions:
-  - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-  - pymdownx.critic
-  - pymdownx.caret
-  - pymdownx.mark
-  - pymdownx.tilde
-  - pymdownx.tabbed
   - attr_list
-  - pymdownx.arithmatex:
-      generic: true
   - pymdownx.highlight:
       linenums: true
-  - pymdownx.superfences
-  - pymdownx.details
-  - admonition
   - toc:
       baselevel: 2
       permalink: true
