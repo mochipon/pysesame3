@@ -41,10 +41,8 @@ class CHSesame2(SesameLocker):
         self.setDeviceUUID(device_uuid)
         self.setSecretKey(secret_key)
 
-        if self.mechStatus.isInLockRange():
-            self._deviceShadowStatus = CHSesame2ShadowStatus.LockedWm
-        else:
-            self._deviceShadowStatus = CHSesame2ShadowStatus.UnlockedWm
+        # Initial sync of `self._deviceShadowStatus`
+        self.mechStatus
 
     @property
     def mechStatus(self) -> CHSesame2MechStatus:
@@ -53,10 +51,18 @@ class CHSesame2(SesameLocker):
         Returns:
             CHSesame2MechStatus: Current mechanical status of the device.
         """
-        return SesameCloud(self).getMechStatus()
+        status = SesameCloud(self).getMechStatus()
+
+        if status.isInLockRange():
+            self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
+        else:
+            self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
+
+        return status
 
     def getDeviceShadowStatus(self) -> CHSesame2ShadowStatus:
-        """Returns a shadow status of a device.
+        """Returns a cached shadow status of a device.
+        In order to refresh the shadow, run `mechStatus`.
 
         Returns:
             CHSesame2ShadowStatus: Shadow (assumed) status of the device.
