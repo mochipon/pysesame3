@@ -26,7 +26,17 @@ def main():
     print((str(device.mechStatus)))
     # => CHSesame2MechStatus(Battery=100% (6.08V), isInLockRange=True, isInUnlockRange=False, Position=-10)
 
-    device.unlock()
+    """
+    The `history_tag` can be set when locking and unlocking (default = `pysesame3`).
+    This tag will be stored in the history as the name (tag) of the key that unlocked or locked the door.
+    It will be more understandable when auditing the key operation using APIs and the apps.
+    """
+    device.unlock(history_tag="My Script")
+
+    """
+    `mechStatus` always gets the latest status from the cloud.
+    Therefore, **just after** locking or unlocking the door, the status such as `isInLockRange` will not be updated.
+    """
     time.sleep(5)
 
     print((str(device.mechStatus)))

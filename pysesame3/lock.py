@@ -76,38 +76,47 @@ class CHSesame2(SesameLocker):
             raise ValueError("Invalid CHSesame2ShadowStatus")
         self._deviceShadowStatus = status
 
-    def lock(self) -> bool:
+    def lock(self, history_tag: str = "pysesame3") -> bool:
         """Locking.
+
+        Args:
+            history_tag (str): The key tag to sent when locking and unlocking. Defaults to `pysesame3`.
 
         Returns:
             bool: `True` if it is successfully locked, `False` if not.
         """
-        result = SesameCloud(self).sendCmd(CHSesame2CMD.LOCK)
+        result = SesameCloud(self).sendCmd(CHSesame2CMD.LOCK, history_tag)
         if result:
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
         return result
 
-    def unlock(self) -> bool:
+    def unlock(self, history_tag: str = "pysesame3") -> bool:
         """Unlocking.
+
+        Args:
+            history_tag (str): The key tag to sent when locking and unlocking. Defaults to `pysesame3`.
 
         Returns:
             bool: `True` if it is successfully unlocked, `False` if not.
         """
-        result = SesameCloud(self).sendCmd(CHSesame2CMD.UNLOCK)
+        result = SesameCloud(self).sendCmd(CHSesame2CMD.UNLOCK, history_tag)
         if result:
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
         return result
 
-    def toggle(self) -> bool:
+    def toggle(self, history_tag: str = "pysesame3") -> bool:
         """Toggle.
+
+        Args:
+            history_tag (str): The key tag to sent when locking and unlocking. Defaults to `pysesame3`.
 
         Returns:
             bool: `True` if it is successfully toggled, `False` if not.
         """
         if self.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm:
-            return self.unlock()
+            return self.unlock(history_tag)
         elif self.getDeviceShadowStatus() == CHSesame2ShadowStatus.UnlockedWm:
-            return self.lock()
+            return self.lock(history_tag)
 
     def __str__(self) -> str:
         """Return a string representation of an object.

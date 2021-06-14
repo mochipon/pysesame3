@@ -67,11 +67,12 @@ class SesameCloud:
 
         return CHSesame2MechStatus(dictdata=r_json)
 
-    def sendCmd(self, cmd: CHSesame2CMD) -> bool:
+    def sendCmd(self, cmd: CHSesame2CMD, history_tag: str = "pysesame3") -> bool:
         """Sends a locking/unlocking command.
 
         Args:
             cmd (CHSesame2CMD): Lock, Unlock and Toggle.
+            history_tag (CHSesame2CMD): The key tag to sent when locking and unlocking.
 
         Returns:
             bool: `True` if success, `False` if not.
@@ -90,7 +91,7 @@ class SesameCloud:
 
         payload = {
             "cmd": int(cmd),
-            "history": base64.b64encode("API".encode()).decode(),
+            "history": base64.b64encode(history_tag.encode()).decode(),
             "sign": sign,
         }
 
