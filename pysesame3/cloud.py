@@ -34,7 +34,6 @@ class SesameCloud:
             method (str): HTTP method to use: `GET`, `OPTIONS`, `HEAD`, `POST`, `PUT`, `PATCH`, or `DELETE`.
             url (str): URL to send.
             json (Optional[dict], optional): JSON data for the body to attach to the request. Defaults to `None`.
-            retry_flag (bool, optional): If `True`, do not retry when a request fails. Defaults to `False`.
 
         Raises:
             RuntimeError: An HTTP error occurred.
@@ -104,9 +103,6 @@ class SesameCloud:
 
     def getHistoryEntries(self) -> list[CHSesame2History]:
         """Retrieves the history of all events with a device.
-
-        Args:
-            device (CHSesame2): The device for which you want to query.
 
         Returns:
             list[CHSesame2History]: A list of events.
