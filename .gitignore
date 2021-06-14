@@ -107,5 +107,5 @@ ENV/
 # mkdocs build dir
 site/
 
-# Default credential cache file
-cognito.pkl
+# poetry lock file
+poetry.lock
