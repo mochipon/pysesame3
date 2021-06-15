@@ -9,6 +9,12 @@ terminal:
 $ pip install pysesame3
 ```
 
+If you want to use `CognitoAuth`, run this command instead.
+
+``` console
+$ pip install pysesame3[cognito]
+```
+
 This is the preferred method to install pysesame3, as it will always install the most recent stable release.
 
 If you don't have [pip][] installed, this [Python installation guide][]

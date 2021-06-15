@@ -29,6 +29,11 @@ python = ">=3.7,<4.0"
 pycryptodome = { version = "^3.10.1" }
 requests = { version = "^2.25.1" }
 
+AWSIoTPythonSDK = { version = "^1.4.9", optional = true }
+boto3 = { version = "^1.17.94", optional = true }
+certifi = { version = "*", optional = true }
+requests-aws4auth = { version = "^1.1.1", optional = true }
+
 # docs
 # should be a dev requirement, but for readthedocs to build must by a dependency
 livereload = { version = "^2.6.3", optional = true }
@@ -44,6 +49,7 @@ bump2version = "^1.0.1"
 flake8 = "^3.9.2"
 flake8-docstrings = "^1.6.0"
 isort = "^5.8.0"
+moto = {extras = ["cognito-identity"], version = "^2.0.9"}
 pre-commit = "^2.13.0"
 pytest = "^6.2.4"
 pytest-cov = "^2.12.1"
@@ -60,6 +66,13 @@ doc = [
     "mkdocs-include-markdown-plugin",
     "mkdocs-material"
 ]
+cognito = [
+    "AWSIoTPythonSDK",
+    "boto3",
+    "certifi",
+    "requests-aws4auth"
+]
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

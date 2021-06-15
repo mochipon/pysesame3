@@ -4,6 +4,7 @@
 
 
 import pytest
+
 from pysesame3.history import CHSesame2History
 
 from .utils import load_fixture
@@ -38,7 +39,7 @@ class TestCHSesame2History:
             "recordID": 200,
             "timeStamp": "2021/06/07 17:33:20",
             "type": "webUnLock",
-            "historyTag": "VGhpc0lzVGVzdA==".encode(),
+            "historyTag": "ThisIsTest",
         }
 
     def test_CHSesame2History_minimum(self):
