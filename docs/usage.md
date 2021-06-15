@@ -12,9 +12,11 @@ from pysesame3.cloud import SesameCloud
 def main():
     """
     We have use two different authentication methods.
+    `CognitoAuth` is not available by default.
+    If you want to use it, run `pip install pysesame3[cognito]` instead of `pip install pysesame3`.
 
     WebAPIAuth: (Common) Using the Web API.
-    CognitoAuth: Behave like a mobile app by using the provided SDKs for iOS/Android.
+    CognitoAuth: (Optional) Behave like a mobile app by using the provided SDKs for iOS/Android.
     """
     # auth = WebAPIAuth(apikey="API_KEY")
     auth = CognitoAuth(
