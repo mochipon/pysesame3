@@ -4,8 +4,9 @@
 
 import pytest
 import requests_mock
+from moto import mock_cognitoidentity
+
 from pysesame3.cloud import SesameCloud
-from pysesame3.history import CHSesame2History
 
 from .utils import load_fixture
 
@@ -18,6 +19,10 @@ def mock_requests():
             json=load_fixture("history.json"),
         )
 
+        mock.get(
+            "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/sesame2/FAKEUUID/history",
+            json=load_fixture("history.json"),
+        )
         yield mock
 
 
@@ -26,25 +31,3 @@ class TestSesameCloudBroken:
         with pytest.raises(TypeError) as excinfo:
             SesameCloud()
         assert "missing 1 required positional argument" in str(excinfo.value)
-
-
-class TestSesameCloudOfficial:
-    @pytest.fixture(autouse=True)
-    def _load_SesameCloud(self):
-        class FakeDevice:
-            @property
-            def authenticator(self):
-                return None
-
-            def getDeviceUUID(self):
-                return "FAKEUUID"
-
-        self.cl = SesameCloud(FakeDevice())
-
-    def test_SesameCloud_getHistoryEntries(self):
-        entries = self.cl.getHistoryEntries()
-
-        assert isinstance(entries, list)
-        assert len(entries) == 2
-        assert isinstance(entries[0], CHSesame2History)
-        assert isinstance(entries[1], CHSesame2History)

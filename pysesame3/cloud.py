@@ -8,7 +8,7 @@ import requests
 from Crypto.Cipher import AES
 from Crypto.Hash import CMAC
 
-from .const import OFFICIALAPI_URL
+from .const import APIGW_URL, IOT_EP, OFFICIALAPI_URL, AuthType
 from .helper import CHSesame2MechStatus
 from .history import CHSesame2History
 
@@ -54,17 +54,43 @@ class SesameCloud:
 
         return response
 
+    def getSign(self) -> str:
+        """Generates a AES-CMAC tag.
+
+        Returns:
+            str: AES-CMAC tag.
+        """
+        j2 = int(time.time())
+        bArr = []
+        bArr.append(((j2 >> 8) & 65535) & 0xFF)
+        bArr.append(((j2 >> 16) & 65535) & 0xFF)
+        bArr.append(((j2 >> 24) & 65535) & 0xFF)
+        secret = bytes.fromhex(self._device.getSecretKey())
+        cobj = CMAC.new(secret, ciphermod=AES)
+        cobj.update(bArr)
+        sign = cobj.hexdigest()
+
+        return sign
+
     def getMechStatus(self) -> CHSesame2MechStatus:
         """Retrives a mechanical status of a device.
 
         Returns:
             CHSesame2MechStatus: Current mechanical status of the device.
         """
-        url = "{}/{}".format(OFFICIALAPI_URL, self._device.getDeviceUUID())
-        response = self.requestAPI("GET", url)
-        r_json = response.json()
+        if self._device.authenticator.login_method == AuthType.WebAPI:
+            url = "{}/{}".format(OFFICIALAPI_URL, self._device.getDeviceUUID())
+            response = self.requestAPI("GET", url)
+            r_json = response.json()
+            return CHSesame2MechStatus(dictdata=r_json)
+        elif self._device.authenticator.login_method == AuthType.SDK:
+            url = "https://{}/things/sesame2/shadow?name={}".format(
+                IOT_EP, self._device.getDeviceUUID()
+            )
 
-        return CHSesame2MechStatus(dictdata=r_json)
+            response = self.requestAPI("GET", url)
+            r_json = response.json()
+            return CHSesame2MechStatus(rawdata=r_json["state"]["reported"]["mechst"])
 
     def sendCmd(self, cmd: CHSesame2CMD, history_tag: str = "pysesame3") -> bool:
         """Sends a locking/unlocking command.
@@ -76,17 +102,14 @@ class SesameCloud:
         Returns:
             bool: `True` if success, `False` if not.
         """
-        url = "{}/{}/cmd".format(OFFICIALAPI_URL, self._device.getDeviceUUID())
-
-        j2 = int(time.time())
-        bArr = []
-        bArr.append(((j2 >> 8) & 65535) & 0xFF)
-        bArr.append(((j2 >> 16) & 65535) & 0xFF)
-        bArr.append(((j2 >> 24) & 65535) & 0xFF)
-        secret = bytes.fromhex(self._device.getSecretKey())
-        cobj = CMAC.new(secret, ciphermod=AES)
-        cobj.update(bArr)
-        sign = cobj.hexdigest()
+        if self._device.authenticator.login_method == AuthType.WebAPI:
+            url = "{}/{}/cmd".format(OFFICIALAPI_URL, self._device.getDeviceUUID())
+            sign = self.getSign()
+        elif self._device.authenticator.login_method == AuthType.SDK:
+            url = "{}/device/v1/iot/sesame2/{}".format(
+                APIGW_URL, self._device.getDeviceUUID()
+            )
+            sign = self.getSign()[0:8]
 
         payload = {
             "cmd": int(cmd),
@@ -107,9 +130,14 @@ class SesameCloud:
         Returns:
             list[CHSesame2History]: A list of events.
         """
-        url = "{}/{}/history?page=0&lg=10".format(
-            OFFICIALAPI_URL, self._device.getDeviceUUID()
-        )
+        if self._device.authenticator.login_method == AuthType.WebAPI:
+            url = "{}/{}/history?page=0&lg=10".format(
+                OFFICIALAPI_URL, self._device.getDeviceUUID()
+            )
+        elif self._device.authenticator.login_method == AuthType.SDK:
+            url = "{}/device/v1/sesame2/{}/history?page=0&lg=10&a={}".format(
+                APIGW_URL, self._device.getDeviceUUID(), self.getSign()[0:8]
+            )
 
         ret = []
 

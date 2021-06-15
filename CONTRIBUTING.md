@@ -59,7 +59,7 @@ $ git clone git@github.com:your_name_here/pysesame3.git
 4. Install dependencies and start your virtualenv:
 
 ```
-$ poetry install -E doc
+$ poetry install -E doc -E cognito
 ```
 
 5. Create a branch for local development:

@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 import uuid
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from pysesame3.auth import WebAPIAuth
+    from pysesame3.auth import CognitoAuth, WebAPIAuth
     from pysesame3.helper import CHProductModel
 
 
 class CHDevices:
-    def __init__(self, authenticator: WebAPIAuth):
+    def __init__(self, authenticator: Union[WebAPIAuth, CognitoAuth]):
         """Generic Implementation for Candyhouse products.
 
         Args:
-            authenticator (WebAPIAuth): The authenticator for the device
+            authenticator (Union[WebAPIAuth, CognitoAuth]): The authenticator for the device
         """
         self._authenticator = authenticator
         self._deviceId = None
@@ -74,11 +74,11 @@ class CHDevices:
 
 
 class SesameLocker(CHDevices):
-    def __init__(self, authenticator: WebAPIAuth):
+    def __init__(self, authenticator: Union[WebAPIAuth, CognitoAuth]):
         """Generic Implementation for Candyhouse smart locks.
 
         Args:
-            authenticator (WebAPIAuth): The authenticator for the device
+            authenticator (Union[WebAPIAuth, CognitoAuth]): The authenticator for the device
         """
         super().__init__(authenticator)
         self._mechStatus = None
