@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime
 from enum import IntEnum
 
@@ -38,7 +39,7 @@ class CHSesame2History:
         self.event_type = CHSesame2History.EventType(type)
         self.timestamp = datetime.fromtimestamp(timeStamp / 1000)
         self.record_id = recordID
-        self.historytag = historyTag.encode() if historyTag is not None else None
+        self.historytag = historyTag
 
     def to_dict(self) -> dict:
         """Returns a dict representation of an object.
@@ -50,5 +51,7 @@ class CHSesame2History:
             "recordID": self.record_id,
             "timeStamp": self.timestamp.strftime("%Y/%m/%d %H:%M:%S"),
             "type": self.event_type.name,
-            "historyTag": self.historytag,
+            "historyTag": base64.b64decode(self.historytag).decode("utf-8")
+            if self.historytag is not None
+            else None,
         }
