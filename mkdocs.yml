@@ -29,6 +29,7 @@ markdown_extensions:
   - attr_list
   - pymdownx.highlight:
       linenums: true
+  - pymdownx.superfences
   - toc:
       baselevel: 2
       permalink: true
