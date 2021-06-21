@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import sys
+import importlib
 from enum import Enum
 from typing import Union
 
@@ -44,7 +44,9 @@ class CHProductModel(Enum):
 
     def deviceFactory(self) -> Union[type, None]:
         if self.value["deviceFactory"] is not None:
-            return getattr(sys.modules["pysesame3.lock"], self.value["deviceFactory"])
+            return getattr(
+                importlib.import_module("pysesame3.lock"), self.value["deviceFactory"]
+            )
         else:
             return None
 
