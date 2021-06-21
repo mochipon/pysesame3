@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import sys
+import importlib
 from enum import Enum
 from typing import Union
 
@@ -44,21 +44,28 @@ class CHProductModel(Enum):
 
     def deviceFactory(self) -> Union[type, None]:
         if self.value["deviceFactory"] is not None:
-            return getattr(sys.modules["pysesame3.lock"], self.value["deviceFactory"])
+            return getattr(
+                importlib.import_module("pysesame3.lock"), self.value["deviceFactory"]
+            )
         else:
             return None
 
 
 class CHSesame2MechStatus:
-    def __init__(self, rawdata: str = None, dictdata: dict = None) -> None:
+    def __init__(
+        self, rawdata: Union[bytes, str] = None, dictdata: dict = None
+    ) -> None:
         """Represents a mechanical status of a device.
 
         Args:
-            rawdata (str): The raw `mechst` string for the device from AWS IoT Shadow.
-            dictdata (str): The structured `mechst` data for the device from Web API.
+            rawdata (Union[bytes, str]): The raw `mechst` string for the device.
+            dictdata (str): The structured `mechst` data for the device.
         """
         if rawdata is not None:
-            data = bytes.fromhex(rawdata)
+            if isinstance(rawdata, str):
+                data = bytes.fromhex(rawdata)
+            else:
+                data = rawdata
             self._batteryVoltage = int.from_bytes(data[0:2], "little") * 7.2 / 1023
             self._target = int.from_bytes(data[2:4], "little")
             self._position = int.from_bytes(data[4:6], "little")

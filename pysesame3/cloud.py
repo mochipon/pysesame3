@@ -60,14 +60,10 @@ class SesameCloud:
         Returns:
             str: AES-CMAC tag.
         """
-        j2 = int(time.time())
-        bArr = []
-        bArr.append(((j2 >> 8) & 65535) & 0xFF)
-        bArr.append(((j2 >> 16) & 65535) & 0xFF)
-        bArr.append(((j2 >> 24) & 65535) & 0xFF)
+        unixtime = int(time.time())
         secret = bytes.fromhex(self._device.getSecretKey())
         cobj = CMAC.new(secret, ciphermod=AES)
-        cobj.update(bArr)
+        cobj.update(unixtime.to_bytes(4, "little")[1:4])
         sign = cobj.hexdigest()
 
         return sign
