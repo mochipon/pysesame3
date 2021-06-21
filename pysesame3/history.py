@@ -33,13 +33,13 @@ class CHSesame2History:
         webLock = 16
         webUnLock = 17
 
-    def __init__(
-        self, type: int, timeStamp: int, recordID: int, historyTag: bytes = None
-    ) -> None:
-        self.event_type = CHSesame2History.EventType(type)
-        self.timestamp = datetime.fromtimestamp(timeStamp / 1000)
-        self.record_id = recordID
-        self.historytag = historyTag
+    def __init__(self, **kwargs) -> None:
+        self.event_type = CHSesame2History.EventType(kwargs.get("type"))
+        self.timestamp = datetime.fromtimestamp(kwargs.get("timeStamp") / 1000)
+        self.record_id = kwargs.get("recordID")
+        self.historytag = kwargs.get("historyTag")
+        self.devicePk = kwargs.get("devicePk")
+        self.parameter = kwargs.get("parameter")
 
     def to_dict(self) -> dict:
         """Returns a dict representation of an object.
@@ -54,4 +54,6 @@ class CHSesame2History:
             "historyTag": base64.b64decode(self.historytag).decode("utf-8")
             if self.historytag is not None
             else None,
+            "devicePk": self.devicePk,
+            "parameter": self.parameter,
         }

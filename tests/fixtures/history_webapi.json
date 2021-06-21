@@ -1,0 +1,17 @@
+[
+    {
+        "type": 2,
+        "timeStamp": 1597492862.0,
+        "historyTag": "44OJ44Op44GI44KC44KT",
+        "devicePk": "5469bc01e40fe65ca2b7baaf55171ddb",
+        "recordID": 255,
+        "parameter": null
+    },{
+        "type": 11,
+        "timeStamp": 1597492864.0,
+        "historyTag": null,
+        "devicePk": null,
+        "recordID": 256,
+        "parameter": null
+    }
+]
