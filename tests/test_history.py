@@ -14,9 +14,10 @@ class TestCHSesame2History:
     @pytest.fixture(autouse=True)
     def _load_json(self):
         self._json_entries = load_fixture("history.json")
+        self._json_entries_webapi = load_fixture("history_webapi.json")
 
     def test_CHSesame2History_raises_exception_on_missing_arguments(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(ValueError):
             CHSesame2History()
 
     def test_CHSesame2History_raises_exception_on_unknown_event_type(self):
@@ -40,6 +41,8 @@ class TestCHSesame2History:
             "timeStamp": "2021/06/07 17:33:20",
             "type": "webUnLock",
             "historyTag": "ThisIsTest",
+            "devicePk": None,
+            "parameter": None,
         }
 
     def test_CHSesame2History_minimum(self):
@@ -50,4 +53,18 @@ class TestCHSesame2History:
             "timeStamp": "2021/06/07 17:50:34",
             "type": "manualLocked",
             "historyTag": None,
+            "devicePk": None,
+            "parameter": None,
+        }
+
+    def test_CHSesame2History_WebAPI(self):
+        h = CHSesame2History(**(self._json_entries_webapi[0]))
+
+        assert h.to_dict() == {
+            "recordID": 255,
+            "timeStamp": "1970/01/19 20:44:52",
+            "type": "bleUnLock",
+            "historyTag": "ドラえもん",
+            "devicePk": "5469bc01e40fe65ca2b7baaf55171ddb",
+            "parameter": None,
         }
