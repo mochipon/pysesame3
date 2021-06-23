@@ -2,7 +2,7 @@
 
 _Unofficial Python Library to communicate with SESAME 3 series products from CANDY HOUSE, Inc._
 
-This project aims to control SESAME 3 series devices by using **[the cloud service](https://doc.candyhouse.co/ja/flow_charts#%E9%80%8F%E9%81%8E-candy-house-cloud--wifi-module-%E5%82%B3%E9%80%81%E6%8C%87%E4%BB%A4%E7%B5%A6-sesame)**.
+This project aims to control SESAME 3 series devices by using **[the cloud service](https://doc.candyhouse.co/ja/flow_charts#candy-house-cloud-%E3%81%A8-wifi-module-%E7%B5%8C%E7%94%B1%E3%81%A7-sesame-%E3%82%92%E9%81%A0%E9%9A%94%E6%93%8D%E4%BD%9C)**.
 If you want to control them directly via **Bluetooth connection**, please check [pysesameos2](https://github.com/mochipon/pysesameos2). 
 
 [![PyPI](https://img.shields.io/pypi/v/pysesame3)](https://pypi.python.org/pypi/pysesame3)
