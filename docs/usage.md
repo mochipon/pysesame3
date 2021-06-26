@@ -4,9 +4,22 @@
 import time
 from pprint import pprint
 
-from pysesame3.auth import WebAPIAuth, CognitoAuth
-from pysesame3.lock import CHSesame2
+from pysesame3.auth import CognitoAuth, WebAPIAuth
 from pysesame3.cloud import SesameCloud
+from pysesame3.helper import CHSesame2MechStatus
+from pysesame3.lock import CHSesame2
+
+
+def callback(device: CHSesame2, status: CHSesame2MechStatus):
+    print("=" * 10)
+    print("mechStatus is updated!")
+    print("UUID: {}".format(device.getDeviceUUID()))
+    print("Battery: {}%".format(status.getBatteryPrecentage()))
+    print("Battery: {:.2f}V".format(status.getBatteryVoltage()))
+    print("isInLockRange: {}".format(status.isInLockRange()))
+    print("isInUnlockRange: {}".format(status.isInUnlockRange()))
+    print("Position: {}".format(status.getPosition()))
+    print("=" * 10)
 
 
 def main():
@@ -63,7 +76,7 @@ def main():
     The mobile app shows the status of the key in almost real time.
     In the same way, you can **subscribe** to `mechStatus`.
     """
-    device.subscribeMechStatus()
+    device.subscribeMechStatus(callback)
 
     print("=" * 10)
     print("[History]")
@@ -83,10 +96,6 @@ def main():
             device.toggle(history_tag="My Script")
         else:
             continue
-
-        time.sleep(5)
-        print((str(device.mechStatus)))
-        # => CHSesame2MechStatus(Battery=100% (6.09V), isInLockRange=True, isInUnlockRange=False, Position=25)
 
 
 if __name__ == "__main__":
