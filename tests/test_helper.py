@@ -3,6 +3,7 @@
 """Tests for `pysesame3` package."""
 
 import pytest
+
 from pysesame3.helper import CHProductModel, CHSesame2MechStatus
 
 
@@ -127,14 +128,14 @@ class TestCHSesame2MechStatus:
 
         assert status.getBatteryPrecentage() == 100.0
         assert status.getBatteryVoltage() == 6.0809384164222875
-        assert status.getPosition() == 65523
+        assert status.getPosition() == -13
         assert status.getRetCode() == 0
-        assert status.getTarget() == 32768
+        assert status.getTarget() == -32768
         assert status.isInLockRange()
         assert not status.isInUnlockRange()
         assert (
             str(status)
-            == "CHSesame2MechStatus(Battery=100% (6.08V), isInLockRange=True, isInUnlockRange=False, Position=65523)"
+            == "CHSesame2MechStatus(Battery=100% (6.08V), isInLockRange=True, isInUnlockRange=False, Position=-13)"
         )
 
     def test_CHSesame2MechStatus_rawdata_unlocked(self):
