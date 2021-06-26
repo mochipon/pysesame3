@@ -51,6 +51,8 @@ class CHSesame2(SesameLocker):
 
         self.setDeviceUUID(device_uuid)
         self.setSecretKey(secret_key)
+        self._iot_client = None
+        self._callback = None
 
         # Initial sync of `self._deviceShadowStatus`
         self.mechStatus
@@ -71,11 +73,11 @@ class CHSesame2(SesameLocker):
 
         return status
 
-    def _iot_shadow_callback(self, client, userdata, message) -> None:
-        """Example Callback for updated shadows.
+    def _iot_shadow_callback(self, client, userdata, message: dict) -> None:
+        """Callback for updated shadows.
 
         Args:
-            message ([type]): The device shadow
+            message (dict): The device shadow
         """
         shadow = json.loads(message.payload)
         status = CHSesame2MechStatus(rawdata=shadow["state"]["reported"]["mechst"])
@@ -84,11 +86,16 @@ class CHSesame2(SesameLocker):
         else:
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
 
-    def subscribeMechStatus(self, callback: Callable[..., None] = None) -> bool:
+        if self._callback is not None and callable(self._callback):
+            self._callback(self, status)
+
+    def subscribeMechStatus(
+        self, callback: Callable[[CHSesame2, CHSesame2MechStatus], None] = None
+    ) -> bool:
         """Subscribes to a topic at AWS IoT
 
         Args:
-            callback (Callable[..., None], optional): The registered callback will be executed once an update is delivered. Defaults to `_iot_shadow_callback`.
+            callback (Callable[[CHSesame2, CHSesame2MechStatus], None], optional): The registered callback will be executed once an update is delivered. Defaults to `None`.
 
         Raises:
             NotImplementedError: If the authenticator is not `AuthType.SDK`.
@@ -99,21 +106,33 @@ class CHSesame2(SesameLocker):
         if self.authenticator.login_method != AuthType.SDK:
             raise NotImplementedError("This feature is not suppoted by the Web API.")
 
-        callback = callback or self._iot_shadow_callback
+        if callable(callback) or callback is None:
+            self._callback = callback
+        else:
+            raise TypeError("callback should be callable.")
+
+        if self._iot_client is not None:
+            raise RuntimeError(
+                "subscribeMechStatus is already called for the device, update the callback anyway."
+            )
 
         (access_key_id, secret_key, session_token) = self.authenticator.authenticate()
 
-        c = AWSIoTMQTTClient(self.authenticator.client_id, useWebsocket=True)
-        c.configureEndpoint(IOT_EP, 443)
-        c.configureCredentials(certifi.where())
-        c.configureIAMCredentials(access_key_id, secret_key, session_token)
-        c.connect()
-        c.subscribe(
+        self._iot_client = AWSIoTMQTTClient(
+            self.authenticator.client_id, useWebsocket=True
+        )
+        self._iot_client.configureEndpoint(IOT_EP, 443)
+        self._iot_client.configureCredentials(certifi.where())
+        self._iot_client.configureIAMCredentials(
+            access_key_id, secret_key, session_token
+        )
+        self._iot_client.connect()
+        self._iot_client.subscribe(
             "$aws/things/sesame2/shadow/name/{}/update/accepted".format(
                 self.getDeviceUUID()
             ),
             1,
-            callback,
+            self._iot_shadow_callback,
         )
 
     @property
