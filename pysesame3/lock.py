@@ -106,7 +106,10 @@ class CHSesame2(SesameLocker):
         if self.authenticator.login_method != AuthType.SDK:
             raise NotImplementedError("This feature is not suppoted by the Web API.")
 
-        self._callback = callback
+        if callable(callback) or callback is None:
+            self._callback = callback
+        else:
+            raise TypeError("callback should be callable.")
 
         if self._iot_client is not None:
             raise RuntimeError(
