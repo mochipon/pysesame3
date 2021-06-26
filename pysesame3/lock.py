@@ -73,11 +73,11 @@ class CHSesame2(SesameLocker):
 
         return status
 
-    def _iot_shadow_callback(self, client, userdata, message) -> None:
-        """Example Callback for updated shadows.
+    def _iot_shadow_callback(self, client, userdata, message: dict) -> None:
+        """Callback for updated shadows.
 
         Args:
-            message ([type]): The device shadow
+            message (dict): The device shadow
         """
         shadow = json.loads(message.payload)
         status = CHSesame2MechStatus(rawdata=shadow["state"]["reported"]["mechst"])
