@@ -16,7 +16,7 @@ def main():
     If you want to use it, run `pip install pysesame3[cognito]` instead of `pip install pysesame3`.
 
     WebAPIAuth: (Common) Using the Web API.
-    CognitoAuth: (Optional) Behave like a mobile app by using the provided SDKs for iOS/Android.
+    CognitoAuth: (Optional) Behave like a mobile app.
     """
     # auth = WebAPIAuth(apikey="API_KEY")
     auth = CognitoAuth(
@@ -41,14 +41,14 @@ def main():
     https://doc.candyhouse.co/ja/reference#chsesameprotocolmechstatus
 
     Please note that `mechStatus` always queries the server for the latest status.
-    Calling it too often would stress the service, which lead to rate limits
+    Calling it too often would stress the service, which leads to rate limits
     and other restrictions.
 
     On the other hand, `getDeviceShadowStatus` does not query the server,
-    but returns a **shadow** which is the status **stored on this library**.
+    but returns a **shadow** which is the status **stored in this library**.
 
     If you are operating the key only in this library, ideally,
-    this shadow will perfectly sync the real state.
+    this shadow will be perfectly consistent with the actual state.
     """
     print("=" * 10)
     print("[Initial MechStatus]")

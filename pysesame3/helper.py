@@ -67,8 +67,8 @@ class CHSesame2MechStatus:
             else:
                 data = rawdata
             self._batteryVoltage = int.from_bytes(data[0:2], "little") * 7.2 / 1023
-            self._target = int.from_bytes(data[2:4], "little")
-            self._position = int.from_bytes(data[4:6], "little")
+            self._target = int.from_bytes(data[2:4], "little", signed=True)
+            self._position = int.from_bytes(data[4:6], "little", signed=True)
             self._retcode = data[6]
             self._isInLockRange = data[7] & 2 > 0
             self._isInUnlockRange = data[7] & 4 > 0
