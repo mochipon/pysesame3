@@ -125,6 +125,13 @@ class TestCHSesame2:
             == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, sesame2PublicKey=None, mechStatus=CHSesame2MechStatus(Battery=67% (5.87V), isInLockRange=True, isInUnlockRange=False, Position=11))"
         )
 
+    def test_CHSesame2_subscribeMechStatus_raises_exception_with_WebAPI(self):
+        def _callback(*_):
+            return True
+
+        with pytest.raises(NotImplementedError):
+            self.key_locked.subscribeMechStatus(_callback)
+
     def test_CHSesame2_getDeviceShadowStatus(self):
         assert self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
         assert (
@@ -214,6 +221,14 @@ class TestCHSesame2Cognito:
             str(self.key_locked)
             == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, sesame2PublicKey=None, mechStatus=CHSesame2MechStatus(Battery=100% (6.11V), isInLockRange=True, isInUnlockRange=False, Position=29))"
         )
+
+    def test_CHSesame2_subscribeMechStatus_raises_exception_on_invalid_arguments(self):
+        with pytest.raises(TypeError):
+            self.key_locked.subscribeMechStatus("NOT-CALLABLE")
+
+    def test_CHSesame2_subscribeMechStatus(self):
+        # TODO: Make tests using moto
+        pass
 
     def test_CHSesame2_getDeviceShadowStatus(self):
         assert self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
