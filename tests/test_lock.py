@@ -2,6 +2,9 @@
 
 """Tests for `pysesame3` package."""
 
+import json
+from unittest.mock import MagicMock, PropertyMock
+
 import pytest
 import requests_mock
 from moto import mock_cognitoidentity
@@ -122,7 +125,7 @@ class TestCHSesame2:
     def test_CHSesame2(self):
         assert (
             str(self.key_locked)
-            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, sesame2PublicKey=None, mechStatus=CHSesame2MechStatus(Battery=67% (5.87V), isInLockRange=True, isInUnlockRange=False, Position=11))"
+            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, mechStatus=CHSesame2MechStatus(Battery=67% (5.87V), isInLockRange=True, isInUnlockRange=False, Position=11))"
         )
 
     def test_CHSesame2_subscribeMechStatus_raises_exception_with_WebAPI(self):
@@ -219,7 +222,31 @@ class TestCHSesame2Cognito:
     def test_CHSesame2(self):
         assert (
             str(self.key_locked)
-            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, sesame2PublicKey=None, mechStatus=CHSesame2MechStatus(Battery=100% (6.11V), isInLockRange=True, isInUnlockRange=False, Position=29))"
+            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, mechStatus=CHSesame2MechStatus(Battery=100% (6.11V), isInLockRange=True, isInUnlockRange=False, Position=29))"
+        )
+
+    def test_CHSesame2_iot_shadow_callback_state_changes_to_unlocked(self):
+        message = MagicMock()
+        payload = PropertyMock(
+            return_value=json.dumps(load_fixture("lock_shadow_unlocked.json"))
+        )
+        type(message).payload = payload
+
+        assert self.key_locked._iot_shadow_callback(None, None, message) is None
+        assert (
+            self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.UnlockedWm
+        )
+
+    def test_CHSesame2_iot_shadow_callback_state_changes_to_locked(self):
+        message = MagicMock()
+        payload = PropertyMock(
+            return_value=json.dumps(load_fixture("lock_shadow_locked.json"))
+        )
+        type(message).payload = payload
+
+        assert self.key_unlocked._iot_shadow_callback(None, None, message) is None
+        assert (
+            self.key_unlocked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
         )
 
     def test_CHSesame2_subscribeMechStatus_raises_exception_on_invalid_arguments(self):

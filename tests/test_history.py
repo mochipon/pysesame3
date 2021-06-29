@@ -17,7 +17,7 @@ class TestCHSesame2History:
         self._json_entries_webapi = load_fixture("history_webapi.json")
 
     def test_CHSesame2History_raises_exception_on_missing_arguments(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             CHSesame2History()
 
     def test_CHSesame2History_raises_exception_on_unknown_event_type(self):
