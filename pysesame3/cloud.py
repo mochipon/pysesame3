@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 import base64
 import time
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 import requests
 from Crypto.Cipher import AES
@@ -17,8 +15,8 @@ if TYPE_CHECKING:
 
 
 class SesameCloud:
-    def __init__(self, device: CHSesame2) -> None:
-        """Constructs and sends a Request to the cloud.
+    def __init__(self, device: "CHSesame2") -> None:
+        """Construct and send a Request to the cloud.
 
         Args:
             device (CHSesame2): The device for which you want to query.
@@ -55,13 +53,13 @@ class SesameCloud:
         return response
 
     def getSign(self) -> str:
-        """Generates a AES-CMAC tag.
+        """Generate a AES-CMAC tag.
 
         Returns:
             str: AES-CMAC tag.
         """
         unixtime = int(time.time())
-        secret = bytes.fromhex(self._device.getSecretKey())
+        secret = self._device.getSecretKey()
         cobj = CMAC.new(secret, ciphermod=AES)
         cobj.update(unixtime.to_bytes(4, "little")[1:4])
         sign = cobj.hexdigest()
@@ -69,7 +67,7 @@ class SesameCloud:
         return sign
 
     def getMechStatus(self) -> CHSesame2MechStatus:
-        """Retrives a mechanical status of a device.
+        """Retrive a mechanical status of a device.
 
         Returns:
             CHSesame2MechStatus: Current mechanical status of the device.
@@ -79,7 +77,7 @@ class SesameCloud:
             response = self.requestAPI("GET", url)
             r_json = response.json()
             return CHSesame2MechStatus(dictdata=r_json)
-        elif self._device.authenticator.login_method == AuthType.SDK:
+        else:
             url = "https://{}/things/sesame2/shadow?name={}".format(
                 IOT_EP, self._device.getDeviceUUID()
             )
@@ -88,8 +86,8 @@ class SesameCloud:
             r_json = response.json()
             return CHSesame2MechStatus(rawdata=r_json["state"]["reported"]["mechst"])
 
-    def sendCmd(self, cmd: CHSesame2CMD, history_tag: str = "pysesame3") -> bool:
-        """Sends a locking/unlocking command.
+    def sendCmd(self, cmd: "CHSesame2CMD", history_tag: str = "pysesame3") -> bool:
+        """Send a locking/unlocking command.
 
         Args:
             cmd (CHSesame2CMD): Lock, Unlock and Toggle.
@@ -120,8 +118,8 @@ class SesameCloud:
         except RuntimeError:
             return False
 
-    def getHistoryEntries(self) -> list[CHSesame2History]:
-        """Retrieves the history of all events with a device.
+    def getHistoryEntries(self) -> List[CHSesame2History]:
+        """Retrieve the history of all events with a device.
 
         Returns:
             list[CHSesame2History]: A list of events.

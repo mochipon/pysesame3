@@ -1,37 +1,56 @@
-from __future__ import annotations
-
 import importlib
+import sys
 from enum import Enum
-from typing import Union
+from typing import Optional, Union
+
+if sys.version_info[:2] >= (3, 8):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
+
+
+class ProductData(TypedDict):
+    deviceModel: str
+    isLocker: bool
+    productType: int
+    deviceFactory: Union[str, None]
 
 
 class CHProductModel(Enum):
-    WM2 = {
+    WM2: ProductData = {
         "deviceModel": "wm_2",
         "isLocker": False,
         "productType": 1,
         "deviceFactory": None,
     }
-    SS2 = {
+    SS2: ProductData = {
         "deviceModel": "sesame_2",
         "isLocker": True,
         "productType": 0,
         "deviceFactory": "CHSesame2",
     }
 
-    def getByModel(model: str) -> Union[CHProductModel, None]:
+    @staticmethod
+    def getByModel(model: str) -> "CHProductModel":
         if not isinstance(model, str):
-            raise ValueError("Invalid Model")
-        return next(
-            (e for e in list(CHProductModel) if e.value["deviceModel"] == model), None
-        )
+            raise TypeError("Invalid Model")
+        try:
+            return next(
+                e for e in list(CHProductModel) if e.value["deviceModel"] == model
+            )
+        except StopIteration:
+            raise NotImplementedError("This device is not supported.")
 
-    def getByValue(val: int) -> Union[CHProductModel, None]:
+    @staticmethod
+    def getByValue(val: int) -> "CHProductModel":
         if not isinstance(val, int):
-            raise ValueError("Invalid Value")
-        return next(
-            (e for e in list(CHProductModel) if e.value["productType"] == val), None
-        )
+            raise TypeError("Invalid Value")
+        try:
+            return next(
+                e for e in list(CHProductModel) if e.value["productType"] == val
+            )
+        except StopIteration:
+            raise NotImplementedError("This device is not supported.")
 
     def deviceModel(self) -> str:
         return self.value["deviceModel"]
@@ -53,9 +72,9 @@ class CHProductModel(Enum):
 
 class CHSesame2MechStatus:
     def __init__(
-        self, rawdata: Union[bytes, str] = None, dictdata: dict = None
+        self, rawdata: Union[bytes, str, None] = None, dictdata: Optional[dict] = None
     ) -> None:
-        """Represents a mechanical status of a device.
+        """Represent a mechanical status of a device.
 
         Args:
             rawdata (Union[bytes, str]): The raw `mechst` string for the device.
@@ -63,24 +82,26 @@ class CHSesame2MechStatus:
         """
         if rawdata is not None:
             if isinstance(rawdata, str):
-                data = bytes.fromhex(rawdata)
+                data_bytes = bytes.fromhex(rawdata)
             else:
-                data = rawdata
-            self._batteryVoltage = int.from_bytes(data[0:2], "little") * 7.2 / 1023
-            self._target = int.from_bytes(data[2:4], "little", signed=True)
-            self._position = int.from_bytes(data[4:6], "little", signed=True)
-            self._retcode = data[6]
-            self._isInLockRange = data[7] & 2 > 0
-            self._isInUnlockRange = data[7] & 4 > 0
-            self._isBatteryCritical = data[7] & 32 > 0
-        elif dictdata is not None:
-            data = dictdata
-            self._batteryVoltage = data["batteryVoltage"]
-            self._position = data["position"]
-            self._isInLockRange = True if data["CHSesame2Status"] == "locked" else False
-            self._isInUnlockRange = (
-                True if data["CHSesame2Status"] == "unlocked" else False
+                data_bytes = rawdata
+            self._batteryVoltage = (
+                int.from_bytes(data_bytes[0:2], "little") * 7.2 / 1023
             )
+            self._target = int.from_bytes(data_bytes[2:4], "little", signed=True)
+            self._position = int.from_bytes(data_bytes[4:6], "little", signed=True)
+            self._retcode = data_bytes[6]
+            self._isInLockRange = data_bytes[7] & 2 > 0
+            self._isInUnlockRange = data_bytes[7] & 4 > 0
+            self._isBatteryCritical = data_bytes[7] & 32 > 0
+        elif dictdata is not None:
+            data_dict = dictdata
+            self._batteryVoltage = data_dict["batteryVoltage"]
+            self._position = data_dict["position"]
+            self._isInLockRange = (
+                True if data_dict["CHSesame2Status"] == "locked" else False
+            )
+            self._isInUnlockRange = not self._isInLockRange
         else:
             raise ValueError("No Input")
 
@@ -88,7 +109,7 @@ class CHSesame2MechStatus:
         return f"CHSesame2MechStatus(Battery={self.getBatteryPrecentage()}% ({self.getBatteryVoltage():.2f}V), isInLockRange={self.isInLockRange()}, isInUnlockRange={self.isInUnlockRange()}, Position={self.getPosition()})"
 
     def getBatteryPrecentage(self) -> int:
-        """Returns battery status information as a percentage.
+        """Return battery status information as a percentage.
 
         Returns:
             int: Battery power left as a percentage.
@@ -118,7 +139,7 @@ class CHSesame2MechStatus:
             return ret
 
     def getBatteryVoltage(self) -> float:
-        """Returns battery status information as a voltage.
+        """Return battery status information as a voltage.
 
         Returns:
             float: Battery power left as a voltage.
@@ -126,7 +147,7 @@ class CHSesame2MechStatus:
         return self._batteryVoltage
 
     def getPosition(self) -> int:
-        """Returns current potision.
+        """Return current potision.
 
         Returns:
             int: The current position (-32767~0~32767)
@@ -134,7 +155,7 @@ class CHSesame2MechStatus:
         return self._position
 
     def getRetCode(self) -> int:
-        """Returns a return code.
+        """Return a return code.
 
         Returns:
             int: The result for a locking/unlocking request.
@@ -145,7 +166,7 @@ class CHSesame2MechStatus:
             raise NotImplementedError("Not Implemented in Web API")
 
     def getTarget(self) -> int:
-        """Returns target potision.
+        """Return target potision.
 
         Returns:
             int: The target position (-32767~0~32767)
@@ -156,7 +177,7 @@ class CHSesame2MechStatus:
             raise NotImplementedError("Not Implemented in Web API")
 
     def isInLockRange(self) -> bool:
-        """Returns whether a device is currently locked.
+        """Return whether a device is currently locked.
 
         Returns:
             bool: `True` if it is locked, `False` if not.
@@ -164,7 +185,7 @@ class CHSesame2MechStatus:
         return self._isInLockRange
 
     def isInUnlockRange(self) -> bool:
-        """Returns whether a device is currently unlocked.
+        """Return whether a device is currently unlocked.
 
         Returns:
             bool: `True` if it is unlocked, `False` if not.

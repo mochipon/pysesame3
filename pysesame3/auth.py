@@ -60,13 +60,13 @@ class CognitoAuth:
         return self._client_id
 
     def authenticate(self):
-        region_name = self._client_id.split(":")[0]
+        region_name = self.client_id.split(":")[0]
 
         cognitoIdentityClient = boto3.client(
             "cognito-identity", region_name=region_name
         )
         temporaryIdentityId = cognitoIdentityClient.get_id(
-            IdentityPoolId=self._client_id
+            IdentityPoolId=self.client_id
         )
         identityID = temporaryIdentityId["IdentityId"]
 

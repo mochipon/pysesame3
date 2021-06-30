@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime
 from enum import IntEnum
+from typing import Optional
 
 
 class CHSesame2History:
@@ -33,16 +34,24 @@ class CHSesame2History:
         webLock = 16
         webUnLock = 17
 
-    def __init__(self, **kwargs) -> None:
-        self.event_type = CHSesame2History.EventType(kwargs.get("type"))
-        self.timestamp = datetime.fromtimestamp(kwargs.get("timeStamp") / 1000)
-        self.record_id = kwargs.get("recordID")
-        self.historytag = kwargs.get("historyTag")
-        self.devicePk = kwargs.get("devicePk")
-        self.parameter = kwargs.get("parameter")
+    def __init__(
+        self,
+        type: int,
+        timeStamp: float,
+        recordID: int,
+        historyTag: Optional[str] = None,
+        devicePk: Optional[str] = None,
+        parameter=None,
+    ) -> None:
+        self.event_type = CHSesame2History.EventType(type)
+        self.timestamp = datetime.fromtimestamp(timeStamp / 1000)
+        self.record_id = recordID
+        self.historytag = historyTag
+        self.devicePk = devicePk
+        self.parameter = parameter
 
     def to_dict(self) -> dict:
-        """Returns a dict representation of an object.
+        """Return a dict representation of an object.
 
         Returns:
             dist: The dict representation of the object.
