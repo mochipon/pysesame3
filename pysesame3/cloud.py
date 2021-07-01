@@ -11,7 +11,7 @@ from .helper import CHSesame2MechStatus
 from .history import CHSesame2History
 
 if TYPE_CHECKING:
-    from .lock import CHSesame2, CHSesame2CMD
+    from .chsesame2 import CHSesame2, CHSesame2CMD
 
 
 class SesameCloud:

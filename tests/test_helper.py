@@ -24,7 +24,9 @@ class TestCHProductModel:
         assert wm2.deviceModel() == "wm_2"
         assert not wm2.isLocker()
         assert wm2.productType() == 1
-        assert wm2.deviceFactory() is None
+
+        with pytest.raises(NotImplementedError):
+            wm2.deviceFactory()
 
     def test_CHProductModel_getByModel_raises_exception_on_invalid_arguments(self):
         with pytest.raises(TypeError):
