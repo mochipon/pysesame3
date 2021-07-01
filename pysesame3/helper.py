@@ -62,12 +62,12 @@ class CHProductModel(Enum):
         return self.value["productType"]
 
     def deviceFactory(self) -> Union[type, None]:
-        if self.value["deviceFactory"] is not None:
-            return getattr(
-                importlib.import_module("pysesame3.lock"), self.value["deviceFactory"]
-            )
-        else:
-            return None
+        if self.value["deviceFactory"] is None:
+            raise NotImplementedError("This device type is not supported.")
+        return getattr(
+            importlib.import_module(f"pysesame3.{self.value['deviceFactory'].lower()}"),
+            self.value["deviceFactory"],
+        )
 
 
 class CHSesame2MechStatus:

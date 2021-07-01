@@ -7,7 +7,7 @@ from pprint import pprint
 from pysesame3.auth import CognitoAuth, WebAPIAuth
 from pysesame3.cloud import SesameCloud
 from pysesame3.helper import CHSesame2MechStatus
-from pysesame3.lock import CHSesame2
+from pysesame3.chsesame2 import CHSesame2
 
 
 def callback(device: CHSesame2, status: CHSesame2MechStatus):
