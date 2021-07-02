@@ -94,12 +94,10 @@ class CHSesame2(SesameLocker):
         # This probably indicates that the key is rotating.
         # We have to carefully check the status just to make sure that
         # it has been definitely toggled.
-        if original_status == CHSesame2ShadowStatus.LockedWm:
-            if not status.isInLockRange() and status.isInUnlockRange():
-                self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
-        elif original_status == CHSesame2ShadowStatus.UnlockedWm:
-            if status.isInLockRange() and not status.isInUnlockRange():
-                self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
+        if not status.isInLockRange() and status.isInUnlockRange():
+            self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
+        if status.isInLockRange() and not status.isInUnlockRange():
+            self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
 
         if original_status != self.getDeviceShadowStatus():
             if self._callback is not None and callable(self._callback):
