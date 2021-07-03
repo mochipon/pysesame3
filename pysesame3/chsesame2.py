@@ -80,15 +80,27 @@ class CHSesame2(SesameLocker):
         Args:
             message (dict): The device shadow
         """
-        shadow = json.loads(message.payload)
-        status = CHSesame2MechStatus(rawdata=shadow["state"]["reported"]["mechst"])
-        if status.isInLockRange():
-            self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
-        else:
-            self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
+        try:
+            shadow = json.loads(message.payload)
+            status = CHSesame2MechStatus(rawdata=shadow["state"]["reported"]["mechst"])
 
-        if self._callback is not None and callable(self._callback):
-            self._callback(self, status)
+            original_status = self.getDeviceShadowStatus()
+
+            # It is possible that both isInLockRange and isInUnlockRange are true.
+            # This probably indicates that the key is rotating.
+            # We have to carefully check the status just to make sure that
+            # it has been definitely toggled.
+            if not status.isInLockRange() and status.isInUnlockRange():
+                self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
+            if status.isInLockRange() and not status.isInUnlockRange():
+                self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
+
+            if original_status != self.getDeviceShadowStatus():
+                if self._callback is not None and callable(self._callback):
+                    self._callback(self, status)
+        except Exception as err:  # noqa: F841
+            # TODO: handle exceptions correctly
+            pass
 
     def subscribeMechStatus(
         self,
