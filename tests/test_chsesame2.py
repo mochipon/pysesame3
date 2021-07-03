@@ -225,7 +225,7 @@ class TestCHSesame2Cognito:
             == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, mechStatus=CHSesame2MechStatus(Battery=100% (6.11V), isInLockRange=True, isInUnlockRange=False, Position=29))"
         )
 
-    def test_CHSesame2_iot_shadow_callback_state_emtry_status(self):
+    def test_CHSesame2_iot_shadow_callback_with_missing_mechst(self):
         message = MagicMock()
         payload = PropertyMock(
             return_value=json.dumps(load_fixture("lock_shadow_missing_mechst.json"))
