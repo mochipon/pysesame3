@@ -227,7 +227,9 @@ class TestCHSesame2Cognito:
 
     def test_CHSesame2_iot_shadow_callback_state_emtry_status(self):
         message = MagicMock()
-        payload = PropertyMock(return_value='{"state": {"reported": {}}}')
+        payload = PropertyMock(
+            return_value=json.dumps(load_fixture("lock_shadow_missing_mechst.json"))
+        )
         type(message).payload = payload
 
         assert self.key_locked._iot_shadow_callback(None, None, message) is None
