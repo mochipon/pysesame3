@@ -102,6 +102,22 @@ class CHSesame2(SesameLocker):
             # TODO: handle exceptions correctly
             pass
 
+    def _iot_on_offline(self) -> None:
+        """Callback that gets called when the AWS IoT client is offline.
+
+        This is intended to update the credentials before reconnecting.
+        """
+        if not isinstance(self.authenticator, CognitoAuth):
+            raise NotImplementedError("This feature is not suppoted by the Web API.")
+        if self._iot_client is None:
+            raise RuntimeError("subscribeMechStatus is not called yet.")
+
+        (access_key_id, secret_key, session_token) = self.authenticator.authenticate()
+
+        self._iot_client.configureIAMCredentials(
+            access_key_id, secret_key, session_token
+        )
+
     def subscribeMechStatus(
         self,
         callback: Optional[Callable[["CHSesame2", CHSesame2MechStatus], None]] = None,
@@ -137,6 +153,7 @@ class CHSesame2(SesameLocker):
         self._iot_client.configureIAMCredentials(
             access_key_id, secret_key, session_token
         )
+        self._iot_client.onOffline = self._iot_on_offline
         self._iot_client.connect()
         self._iot_client.subscribe(
             "$aws/things/sesame2/shadow/name/{}/update/accepted".format(
