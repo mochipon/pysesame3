@@ -1,4 +1,5 @@
 import importlib
+import re
 import sys
 from enum import Enum
 from typing import Optional, Union
@@ -191,3 +192,15 @@ class CHSesame2MechStatus:
             bool: `True` if it is unlocked, `False` if not.
         """
         return self._isInUnlockRange
+
+
+class RegexHelper:
+    @staticmethod
+    def get_aws_region(text: str) -> str:
+        result = re.search(
+            r"(us(-gov)?|ap|ca|cn|eu|sa)-(central|(north|south)?(east|west)?)-\d", text
+        )
+        if result:
+            return result.group(0)
+        else:
+            raise ValueError("Failed to extract a region name.")

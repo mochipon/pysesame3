@@ -4,7 +4,7 @@
 
 import pytest
 
-from pysesame3.helper import CHProductModel, CHSesame2MechStatus
+from pysesame3.helper import CHProductModel, CHSesame2MechStatus, RegexHelper
 
 
 class TestCHProductModel:
@@ -155,4 +155,28 @@ class TestCHSesame2MechStatus:
         assert (
             str(status)
             == "CHSesame2MechStatus(Battery=100% (6.05V), isInLockRange=False, isInUnlockRange=True, Position=739)"
+        )
+
+
+class TestRegexHelper:
+    def test_get_aws_region_raises_exception_with_unknown_str(self):
+        with pytest.raises(ValueError):
+            RegexHelper.get_aws_region("INVALID")
+
+    def test_get_aws_region(self):
+        assert (
+            RegexHelper.get_aws_region(
+                "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod"
+            )
+            == "ap-northeast-1"
+        )
+        assert (
+            RegexHelper.get_aws_region(
+                "a3i4hui4gxwoo8-ats.iot.ap-northeast-1.amazonaws.com"
+            )
+            == "ap-northeast-1"
+        )
+        assert (
+            RegexHelper.get_aws_region("us-west-1:126D3D66-9222-4E5A-BCDE-0C6629D48D43")
+            == "us-west-1"
         )

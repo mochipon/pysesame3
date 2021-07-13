@@ -11,9 +11,10 @@ from moto import mock_cognitoidentity
 
 from pysesame3.auth import CognitoAuth, WebAPIAuth
 from pysesame3.chsesame2 import CHSesame2, CHSesame2ShadowStatus
+from pysesame3.helper import CHSesame2MechStatus
 from pysesame3.history import CHSesame2History
 
-from .utils import load_fixture
+from .utils import TypeMatcher, load_fixture
 
 
 @pytest.fixture(autouse=True)
@@ -226,46 +227,62 @@ class TestCHSesame2Cognito:
         )
 
     def test_CHSesame2_iot_shadow_callback_with_missing_mechst(self):
-        message = MagicMock()
-        payload = PropertyMock(
-            return_value=json.dumps(load_fixture("lock_shadow_missing_mechst.json"))
+        assert (
+            self.key_locked._iot_shadow_callback(
+                "$aws/things/sesame2/shadow/name/126D3D66-9222-4E5A-BCDE-0C6629D48D43/update/accepted",
+                json.dumps(load_fixture("lock_shadow_missing_mechst.json")).encode(),
+            )
+            is None
         )
-        type(message).payload = payload
-
-        assert self.key_locked._iot_shadow_callback(None, None, message) is None
         assert self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
 
     def test_CHSesame2_iot_shadow_callback_state_changes_to_unlocked(self):
-        message = MagicMock()
-        payload = PropertyMock(
-            return_value=json.dumps(load_fixture("lock_shadow_unlocked.json"))
+        assert (
+            self.key_locked._iot_shadow_callback(
+                "$aws/things/sesame2/shadow/name/126D3D66-9222-4E5A-BCDE-0C6629D48D43/update/accepted",
+                json.dumps(load_fixture("lock_shadow_unlocked.json")).encode(),
+            )
+            is None
         )
-        type(message).payload = payload
-
-        assert self.key_locked._iot_shadow_callback(None, None, message) is None
         assert (
             self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.UnlockedWm
         )
 
     def test_CHSesame2_iot_shadow_callback_state_changes_to_locked(self):
-        message = MagicMock()
-        payload = PropertyMock(
-            return_value=json.dumps(load_fixture("lock_shadow_locked.json"))
+        assert (
+            self.key_unlocked._iot_shadow_callback(
+                "$aws/things/sesame2/shadow/name/E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1/update/accepted",
+                json.dumps(load_fixture("lock_shadow_locked.json")).encode(),
+            )
+            is None
         )
-        type(message).payload = payload
-
-        assert self.key_unlocked._iot_shadow_callback(None, None, message) is None
         assert (
             self.key_unlocked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
+        )
+
+    def test_CHSesame2_iot_shadow_callback_with_user_dedefined_callback(self):
+        m = MagicMock()
+        self.key_unlocked._callback = m
+
+        self.key_unlocked._iot_shadow_callback(
+            "$aws/things/sesame2/shadow/name/E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1/update/accepted",
+            json.dumps(load_fixture("lock_shadow_locked.json")).encode(),
+        )
+        m.assert_called_once_with(
+            TypeMatcher(CHSesame2), TypeMatcher(CHSesame2MechStatus)
         )
 
     def test_CHSesame2_subscribeMechStatus_raises_exception_on_invalid_arguments(self):
         with pytest.raises(TypeError):
             self.key_locked.subscribeMechStatus("NOT-CALLABLE")
 
+    @mock_cognitoidentity
     def test_CHSesame2_subscribeMechStatus(self):
-        # TODO: Make tests using moto
         pass
+        """
+        m = MagicMock()
+        self.key_locked.subscribeMechStatus(m)
+        """
 
     def test_CHSesame2_getDeviceShadowStatus(self):
         assert self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
