@@ -1,3 +1,4 @@
+import logging
 import uuid
 from typing import TYPE_CHECKING, Optional, Union
 
@@ -6,6 +7,8 @@ from pysesame3.helper import CHSesame2MechStatus
 if TYPE_CHECKING:
     from pysesame3.auth import CognitoAuth, WebAPIAuth
     from pysesame3.helper import CHProductModel
+
+logger = logging.getLogger(__name__)
 
 
 class CHDevices:
@@ -57,6 +60,7 @@ class CHDevices:
             id = uuid.UUID(id)
         elif not isinstance(id, uuid.UUID):
             raise ValueError("Invalid UUID")
+        logger.debug("setDeviceId={}".format(id))
         self._deviceId = id
 
     def setProductModel(self, model: "CHProductModel") -> None:
@@ -70,6 +74,7 @@ class CHDevices:
         """
         if type(model).__name__ != "CHProductModel":
             raise ValueError("Invalid CHProductModel")
+        logger.debug("setProductModel={}".format(model))
         self._productModel = model
 
 
@@ -124,6 +129,7 @@ class SesameLocker(CHDevices):
             key = bytes.fromhex(key)
         if len(key) != 16:
             raise ValueError("Invalid SecretKey - length should be 16.")
+        logger.debug("setSecretKey=*******")
         self._secretKey = key
 
     def __str__(self) -> str:

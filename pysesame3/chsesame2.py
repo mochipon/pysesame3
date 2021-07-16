@@ -1,4 +1,5 @@
 import json
+import logging
 from enum import Enum, IntEnum, auto
 from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
@@ -14,6 +15,8 @@ from pysesame3.helper import CHSesame2MechStatus
 if TYPE_CHECKING:
     from pysesame3.auth import WebAPIAuth
     from pysesame3.history import CHSesame2History
+
+logger = logging.getLogger(__name__)
 
 
 class CHSesame2CMD(IntEnum):
@@ -52,6 +55,7 @@ class CHSesame2(SesameLocker):
 
         # Initial sync of `self._deviceShadowStatus`
         self.mechStatus
+        logger.debug("Initialized={}".format(str(self)))
 
     @property
     def mechStatus(self) -> CHSesame2MechStatus:
@@ -61,6 +65,7 @@ class CHSesame2(SesameLocker):
             CHSesame2MechStatus: Current mechanical status of the device.
         """
         status = self.authenticator.sesame_cloud.getMechStatus(self)
+        logger.debug("UUID={}, mechStatus={}".format(self.getDeviceUUID(), str(status)))
 
         if status.isInLockRange():
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
@@ -76,8 +81,12 @@ class CHSesame2(SesameLocker):
             message (dict): The device shadow
         """
         try:
+            logger.info("UUID={}, Shadow updated".format(self.getDeviceUUID()))
             shadow = json.loads(payload.decode("utf-8"))
             status = CHSesame2MechStatus(rawdata=shadow["state"]["reported"]["mechst"])
+            logger.debug(
+                "UUID={}, reported mechst={}".format(self.getDeviceUUID(), str(status))
+            )
 
             original_status = self.getDeviceShadowStatus()
 
@@ -92,6 +101,11 @@ class CHSesame2(SesameLocker):
 
             if original_status != self.getDeviceShadowStatus():
                 if self._callback is not None and callable(self._callback):
+                    logger.debug(
+                        "UUID={}, Custom callback triggered".format(
+                            self.getDeviceUUID()
+                        )
+                    )
                     self._callback(self, status)
         except Exception as err:  # noqa: F841
             # TODO: handle exceptions correctly
@@ -112,6 +126,7 @@ class CHSesame2(SesameLocker):
         if not isinstance(self.authenticator, CognitoAuth):
             raise NotImplementedError("This feature is not suppoted by the Web API.")
 
+        logger.info("UUID={}, Subscribe to the topic...".format(self.getDeviceUUID()))
         if callable(callback) or callback is None:
             self._callback = callback
         else:
@@ -127,7 +142,8 @@ class CHSesame2(SesameLocker):
             qos=mqtt.QoS.AT_LEAST_ONCE,
             callback=self._iot_shadow_callback,
         )
-        return subscribe_future.result()
+        subscribe_future.result()
+        logger.info("UUID={}, Subscription established".format(self.getDeviceUUID()))
 
     @property
     def historyEntries(self) -> List["CHSesame2History"]:
@@ -158,6 +174,7 @@ class CHSesame2(SesameLocker):
         """
         if not isinstance(status, CHSesame2ShadowStatus):
             raise ValueError("Invalid CHSesame2ShadowStatus")
+        logger.debug("UUID={}, set={}".format(self.getDeviceUUID(), status))
         self._deviceShadowStatus = status
 
     def lock(self, history_tag: str = "pysesame3") -> bool:
@@ -169,6 +186,7 @@ class CHSesame2(SesameLocker):
         Returns:
             bool: `True` if it is successfully locked, `False` if not.
         """
+        logger.info("UUID={}, Locking...".format(self.getDeviceUUID()))
         result = self.authenticator.sesame_cloud.sendCmd(
             self, CHSesame2CMD.LOCK, history_tag
         )
@@ -185,6 +203,7 @@ class CHSesame2(SesameLocker):
         Returns:
             bool: `True` if it is successfully unlocked, `False` if not.
         """
+        logger.info("UUID={}, Unlocking...".format(self.getDeviceUUID()))
         result = self.authenticator.sesame_cloud.sendCmd(
             self, CHSesame2CMD.UNLOCK, history_tag
         )
