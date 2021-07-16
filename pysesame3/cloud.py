@@ -1,4 +1,5 @@
 import base64
+import logging
 import sys
 import time
 from typing import TYPE_CHECKING, List, Optional, Union
@@ -24,6 +25,8 @@ if TYPE_CHECKING:
 
     from .auth import CognitoAuth, WebAPIAuth
     from .chsesame2 import CHSesame2, CHSesame2CMD
+
+logger = logging.getLogger(__name__)
 
 
 class SesameCloud:
@@ -52,6 +55,7 @@ class SesameCloud:
             requests.Response: The server's response to an HTTP request.
         """
         try:
+            logger.debug("requestAPI method={}, url={}".format(method, url))
             response = requests.request(
                 method,
                 url,
@@ -60,6 +64,7 @@ class SesameCloud:
             )
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
+            logger.exception("requestAPI exeption raised")
             raise RuntimeError(e)
 
         return response
@@ -75,6 +80,7 @@ class SesameCloud:
         cobj = CMAC.new(secret, ciphermod=AES)
         cobj.update(unixtime.to_bytes(4, "little")[1:4])
         sign = cobj.hexdigest()
+        logger.debug("getSign cmac={}".format(sign))
 
         return sign
 
@@ -113,6 +119,11 @@ class SesameCloud:
         Returns:
             bool: `True` if success, `False` if not.
         """
+        logger.debug(
+            "sendCmd UUID={}, cmd={}, history_tag={}".format(
+                device.getDeviceUUID(), cmd, history_tag
+            )
+        )
         if self._authenticator.login_method == AuthType.WebAPI:
             url = "{}/{}/cmd".format(OFFICIALAPI_URL, device.getDeviceUUID())
             sign = self.getSign(device)
@@ -131,8 +142,10 @@ class SesameCloud:
         try:
             response = self.requestAPI("POST", url, payload)
 
+            logger.debug("sendCmd result={}".format(response.ok))
             return response.ok
         except RuntimeError:
+            logger.debug("sendCmd result=exception raised")
             return False
 
     def getHistoryEntries(self, device: "CHSesame2") -> List[CHSesame2History]:
@@ -144,6 +157,7 @@ class SesameCloud:
         Returns:
             list[CHSesame2History]: A list of events.
         """
+        logger.debug("getHistoryEntries UUID={}".format(device.getDeviceUUID()))
         if self._authenticator.login_method == AuthType.WebAPI:
             url = "{}/{}/history?page=0&lg=10".format(
                 OFFICIALAPI_URL, device.getDeviceUUID()
@@ -188,7 +202,7 @@ class AWSIoT:
             connection (mqtt.Connection): Connection this callback is for.
             error (AwsCrtError): Exception which caused connection loss.
         """
-        print("Connection interrupted. error: {}".format(error))
+        logger.warn("AWS IoT connection interrupted. error: {}".format(error))
 
     def _on_connection_resumed(
         self,
@@ -203,14 +217,16 @@ class AWSIoT:
             return_code (mqtt.ConnectReturnCode): Connect return code received from the server.
             session_present (bool): `True` if resuming existing session. `False` if new session.
         """
-        print(
-            "Connection resumed. return_code: {} session_present: {}".format(
+        logger.warn(
+            "AWS IoT connection resumed. return_code: {} session_present: {}".format(
                 return_code, session_present
             )
         )
 
         if return_code == mqtt.ConnectReturnCode.ACCEPTED and not session_present:
-            print("Session did not persist. Resubscribing to existing topics...")
+            logger.warn(
+                "AWS IoT session did not persist. Resubscribing to existing topics..."
+            )
             resubscribe_future, _ = connection.resubscribe_existing_topics()
 
             # Cannot synchronously wait for resubscribe result because we're on the connection's event-loop thread,
@@ -227,7 +243,7 @@ class AWSIoT:
             ConnectionRefusedError: If the server rejected resubscribe to a topic.
         """
         resubscribe_results = resubscribe_future.result()
-        print("Resubscribe results: {}".format(resubscribe_results))
+        logger.debug("AWS IoT resubscribe results: {}".format(resubscribe_results))
 
         for topic, qos in resubscribe_results["topics"]:
             if qos is None:
@@ -245,6 +261,7 @@ class AWSIoT:
         host_resolver = io.DefaultHostResolver(event_loop_group)
         client_bootstrap = io.ClientBootstrap(event_loop_group, host_resolver)
 
+        logger.debug("Start connecting AWS IoT....")
         self.mqtt_connection = mqtt_connection_builder.websockets_with_custom_handshake(
             endpoint=IOT_EP,
             client_bootstrap=client_bootstrap,
@@ -259,3 +276,4 @@ class AWSIoT:
 
         connect_future = self.mqtt_connection.connect()
         connect_future.result()
+        logger.debug("Connection established to AWS IoT")
