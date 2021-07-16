@@ -133,7 +133,14 @@ class CHSesame2(SesameLocker):
             raise TypeError("callback should be callable.")
 
         aws_iot = self.authenticator.aws_iot
-        aws_iot.connect()
+        try:
+            aws_iot.connect()
+        except RuntimeError as e:
+            if "AWS_ERROR_MQTT_ALREADY_CONNECTED" in str(e):
+                logger.debug("The connection to AWS IoT is already open")
+                pass
+            else:
+                raise e
 
         subscribe_future, _ = aws_iot.mqtt_connection.subscribe(
             topic="$aws/things/sesame2/shadow/name/{}/update/accepted".format(
