@@ -1,4 +1,5 @@
 import base64
+import sys
 import time
 from typing import TYPE_CHECKING, List, Optional, Union
 
@@ -7,8 +8,7 @@ try:
     from awscrt import io, mqtt
     from awscrt.exceptions import AwsCrtError
     from awsiot import mqtt_connection_builder
-except ImportError:
-    # Optional deps
+except ImportError: # pragma: no cover
     pass
 
 import requests
@@ -169,6 +169,11 @@ class AWSIoT:
         Args:
             authenticator (CognitoAuth): The authenticator
         """
+        if "awsiot" not in sys.modules or "certifi" not in sys.modules: # pragma: no cover
+            raise RuntimeError(
+                "Failed to load awsiotsdk or certifi. Did you run `pip install pysesame3[cognito]`?"
+            )
+
         self._authenticator = authenticator
         self.mqtt_connection: mqtt.Connection
 

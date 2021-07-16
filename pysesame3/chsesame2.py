@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
 try:
     from awscrt import mqtt
-except ImportError:
-    # Optional deps
+except ImportError: # pragma: no cover
     pass
 
 from pysesame3.auth import CognitoAuth
