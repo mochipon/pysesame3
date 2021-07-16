@@ -5,7 +5,7 @@ try:
     import boto3
     from awscrt import auth
     from requests_aws4auth import AWS4Auth
-except ImportError: # pragma: no cover
+except ImportError:  # pragma: no cover
     pass
 import requests
 
@@ -16,7 +16,7 @@ from .helper import RegexHelper
 if TYPE_CHECKING:
     try:
         from awscrt import mqtt
-    except ImportError: # pragma: no cover
+    except ImportError:  # pragma: no cover
         pass
 
 
@@ -75,7 +75,9 @@ class CognitoAuth:
         if len(apikey) != 40:
             raise ValueError("Invalid API Key - length should be 40.")
 
-        if "awsiot" not in sys.modules or "certifi" not in sys.modules: # pragma: no cover
+        if (
+            "awsiot" not in sys.modules or "certifi" not in sys.modules
+        ):  # pragma: no cover
             raise RuntimeError(
                 "Failed to load awsiotsdk or certifi. Did you run `pip install pysesame3[cognito]`?"
             )
