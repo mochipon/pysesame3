@@ -3,15 +3,11 @@ from enum import Enum, IntEnum, auto
 from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
 try:
-    import certifi
-    from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
-except ImportError:
-    # Optional deps
+    from awscrt import mqtt
+except ImportError:  # pragma: no cover
     pass
 
 from pysesame3.auth import CognitoAuth
-from pysesame3.cloud import SesameCloud
-from pysesame3.const import IOT_EP
 from pysesame3.device import SesameLocker
 from pysesame3.helper import CHSesame2MechStatus
 
@@ -50,7 +46,6 @@ class CHSesame2(SesameLocker):
 
         self.setDeviceUUID(device_uuid)
         self.setSecretKey(secret_key)
-        self._iot_client: Optional[AWSIoTMQTTClient] = None
         self._callback: Optional[
             Callable[[CHSesame2, CHSesame2MechStatus], None]
         ] = None
@@ -65,7 +60,7 @@ class CHSesame2(SesameLocker):
         Returns:
             CHSesame2MechStatus: Current mechanical status of the device.
         """
-        status = SesameCloud(self).getMechStatus()
+        status = self.authenticator.sesame_cloud.getMechStatus(self)
 
         if status.isInLockRange():
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
@@ -74,14 +69,14 @@ class CHSesame2(SesameLocker):
 
         return status
 
-    def _iot_shadow_callback(self, client, userdata, message) -> None:  # type: ignore
+    def _iot_shadow_callback(self, topic: str, payload: bytes, *_):
         """Callback for updated shadows.
 
         Args:
             message (dict): The device shadow
         """
         try:
-            shadow = json.loads(message.payload)
+            shadow = json.loads(payload.decode("utf-8"))
             status = CHSesame2MechStatus(rawdata=shadow["state"]["reported"]["mechst"])
 
             original_status = self.getDeviceShadowStatus()
@@ -101,22 +96,6 @@ class CHSesame2(SesameLocker):
         except Exception as err:  # noqa: F841
             # TODO: handle exceptions correctly
             pass
-
-    def _iot_on_offline(self) -> None:
-        """Callback that gets called when the AWS IoT client is offline.
-
-        This is intended to update the credentials before reconnecting.
-        """
-        if not isinstance(self.authenticator, CognitoAuth):
-            raise NotImplementedError("This feature is not suppoted by the Web API.")
-        if self._iot_client is None:
-            raise RuntimeError("subscribeMechStatus is not called yet.")
-
-        (access_key_id, secret_key, session_token) = self.authenticator.authenticate()
-
-        self._iot_client.configureIAMCredentials(
-            access_key_id, secret_key, session_token
-        )
 
     def subscribeMechStatus(
         self,
@@ -138,30 +117,17 @@ class CHSesame2(SesameLocker):
         else:
             raise TypeError("callback should be callable.")
 
-        if self._iot_client is not None:
-            raise RuntimeError(
-                "subscribeMechStatus is already called for the device, update the callback anyway."
-            )
+        aws_iot = self.authenticator.aws_iot
+        aws_iot.connect()
 
-        (access_key_id, secret_key, session_token) = self.authenticator.authenticate()
-
-        self._iot_client = AWSIoTMQTTClient(
-            self.authenticator.client_id, useWebsocket=True
-        )
-        self._iot_client.configureEndpoint(IOT_EP, 443)
-        self._iot_client.configureCredentials(certifi.where())
-        self._iot_client.configureIAMCredentials(
-            access_key_id, secret_key, session_token
-        )
-        self._iot_client.onOffline = self._iot_on_offline
-        self._iot_client.connect()
-        self._iot_client.subscribe(
-            "$aws/things/sesame2/shadow/name/{}/update/accepted".format(
+        subscribe_future, _ = aws_iot.mqtt_connection.subscribe(
+            topic="$aws/things/sesame2/shadow/name/{}/update/accepted".format(
                 self.getDeviceUUID()
             ),
-            1,
-            self._iot_shadow_callback,
+            qos=mqtt.QoS.AT_LEAST_ONCE,
+            callback=self._iot_shadow_callback,
         )
+        return subscribe_future.result()
 
     @property
     def historyEntries(self) -> List["CHSesame2History"]:
@@ -170,7 +136,7 @@ class CHSesame2(SesameLocker):
         Returns:
             list[CHSesame2History]: A list of events.
         """
-        return SesameCloud(self).getHistoryEntries()
+        return self.authenticator.sesame_cloud.getHistoryEntries(self)
 
     def getDeviceShadowStatus(self) -> CHSesame2ShadowStatus:
         """Return a cached shadow status of a device.
@@ -203,7 +169,9 @@ class CHSesame2(SesameLocker):
         Returns:
             bool: `True` if it is successfully locked, `False` if not.
         """
-        result = SesameCloud(self).sendCmd(CHSesame2CMD.LOCK, history_tag)
+        result = self.authenticator.sesame_cloud.sendCmd(
+            self, CHSesame2CMD.LOCK, history_tag
+        )
         if result:
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
         return result
@@ -217,7 +185,9 @@ class CHSesame2(SesameLocker):
         Returns:
             bool: `True` if it is successfully unlocked, `False` if not.
         """
-        result = SesameCloud(self).sendCmd(CHSesame2CMD.UNLOCK, history_tag)
+        result = self.authenticator.sesame_cloud.sendCmd(
+            self, CHSesame2CMD.UNLOCK, history_tag
+        )
         if result:
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
         return result

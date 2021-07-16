@@ -9,3 +9,11 @@ def load_fixture(filename):
     ) as fp:
         data = json.load(fp)
     return data
+
+
+class TypeMatcher:
+    def __init__(self, expected_type):
+        self.expected_type = expected_type
+
+    def __eq__(self, other):
+        return isinstance(other, self.expected_type)
