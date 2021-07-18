@@ -29,9 +29,9 @@ class TestCHSesame2History:
             CHSesame2History.EventType(12345)
         assert "12345 is not a valid" in str(excinfo.value)
 
-        with pytest.raises(ValueError) as excinfo:
-            CHSesame2History(type=12345, timeStamp=1597492862, recordID=1)
-        assert "12345 is not a valid" in str(excinfo.value)
+    def test_CHSesame2History_passes_on_unknown_event_type(self):
+        his = CHSesame2History(type=12345, timeStamp=1597492862, recordID=1)
+        assert his.event_type == CHSesame2History.EventType.unknown
 
     def test_CHSesame2History(self):
         h = CHSesame2History(**(self._json_entries[0]))

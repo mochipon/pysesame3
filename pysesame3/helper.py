@@ -30,6 +30,12 @@ class CHProductModel(Enum):
         "productType": 0,
         "deviceFactory": "CHSesame2",
     }
+    SesameBot1: ProductData = {
+        "deviceModel": "ssmbot_1",
+        "isLocker": True,
+        "productType": 2,
+        "deviceFactory": "CHSesameBot",
+    }
 
     @staticmethod
     def getByModel(model: str) -> "CHProductModel":

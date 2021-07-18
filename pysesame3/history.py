@@ -15,6 +15,7 @@ class CHSesame2History:
     """
 
     class EventType(IntEnum):
+        unknown = -1
         none = 0
         bleLock = 1
         bleUnLock = 2
@@ -33,6 +34,10 @@ class CHSesame2History:
         wm2UnLock = 15
         webLock = 16
         webUnLock = 17
+        # 18 will be wm2Click or webClick
+        EVENT_18 = 18
+        driveClick = 21
+        manualClick = 22
 
     def __init__(
         self,
@@ -43,7 +48,10 @@ class CHSesame2History:
         devicePk: Optional[str] = None,
         parameter=None,
     ) -> None:
-        self.event_type = CHSesame2History.EventType(type)
+        try:
+            self.event_type = CHSesame2History.EventType(type)
+        except ValueError:
+            self.event_type = CHSesame2History.EventType.unknown
         self.timestamp = datetime.fromtimestamp(timeStamp / 1000)
         self.record_id = recordID
         self.historytag = historyTag
