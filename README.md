@@ -15,13 +15,16 @@ If you want to control them directly via **Bluetooth connection**, please check 
 * Free software: MIT license
 * Documentation: [https://pysesame3.readthedocs.io](https://pysesame3.readthedocs.io)
 
+## Supported devices
+
+- [SESAME 3](https://jp.candyhouse.co/products/sesame3)
+- [SESAME bot](https://jp.candyhouse.co/products/sesame3-bot)
+
 ## Features
 
-Please note that `pysesame3` can only control [SESAME 3 Smart Lock](https://jp.candyhouse.co/products/sesame3) at this moment. It could technically support [SESAME Bot](https://jp.candyhouse.co/collections/frontpage/products/sesame3-bot) as well, but I don't have that device. PRs are always welcome!
-
-* Retrieve status of a SESAME lock (locked, handle position, etc.).
+* Retrieve the device status (battery level, locked, handle position, etc.).
 * Retrieve recent events (locked, unlocked, etc.) associated with a lock.
-* Needless to say, locking and unlocking!
+* Needless to say, locking, unlocking and clicking (for the bot)!
 
 ## Usage
 
@@ -30,4 +33,5 @@ Please take a look at [the documentation](https://pysesame3.readthedocs.io/en/la
 ## Credits & Thanks
 
 * A huge thank you to all at [CANDY HOUSE](https://jp.candyhouse.co/) and their crowdfunding contributors!
+* Thanks to [@Chabiichi](https://github.com/Chabiichi)-san for [the offer](https://github.com/mochipon/pysesame3/issues/25) to get my SESAME bot!
 * This project was inspired and based on [tchellomello/python-ring-doorbell](https://github.com/tchellomello/python-ring-doorbell) and [snjoetw/py-august](https://github.com/snjoetw/py-august).

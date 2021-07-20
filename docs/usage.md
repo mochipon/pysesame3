@@ -5,12 +5,13 @@ import time
 from pprint import pprint
 
 from pysesame3.auth import CognitoAuth, WebAPIAuth
-from pysesame3.cloud import SesameCloud
-from pysesame3.helper import CHSesame2MechStatus
-from pysesame3.chsesame2 import CHSesame2
+from pysesame3.chsesame2 import CHSesame2  # For SESAME 3
+from pysesame3.chsesamebot import CHSesameBot  # For SESAME bot
+from pysesame3.device import SesameLocker  # Just for type hinting
+from pysesame3.helper import CHSesame2MechStatus  # Just for type hinting
 
 
-def callback(device: CHSesame2, status: CHSesame2MechStatus):
+def callback(device: SesameLocker, status: CHSesame2MechStatus):
     print("=" * 10)
     print("mechStatus is updated!")
     print("UUID: {}".format(device.getDeviceUUID()))
@@ -45,6 +46,12 @@ def main():
     your_key_uuid = "UUID"
     your_key_secret = "SECRET_KEY"
 
+    """
+    This library supports SESAME3 and SESAME bot.
+
+    `CHSesame2`: SESAME3
+    `CHSesameBot`: SESAME bot
+    """
     device = CHSesame2(
         authenticator=auth, device_uuid=your_key_uuid, secret_key=your_key_secret
     )
@@ -77,6 +84,20 @@ def main():
     In the same way, you can **subscribe** to `mechStatus`.
     """
     device.subscribeMechStatus(callback)
+
+    """
+    It also supports environments where multiple locks are being installed.
+
+    your_2nd_key_uuid = "UUID"
+    your_2nd_key_secret = "SECRET_KEY"
+
+    device2 = CHSesame2(
+        authenticator=auth,
+        device_uuid=your_2nd_key_uuid,
+        secret_key=your_2nd_key_secret,
+    )
+    device2.subscribeMechStatus(callback)
+    """
 
     print("=" * 10)
     print("[History]")

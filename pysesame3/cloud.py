@@ -24,7 +24,9 @@ if TYPE_CHECKING:
     from concurrent.futures import Future
 
     from .auth import CognitoAuth, WebAPIAuth
-    from .chsesame2 import CHSesame2, CHSesame2CMD
+    from .const import CHSesame2CMD
+    from .device import SesameLocker
+
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +71,7 @@ class SesameCloud:
 
         return response
 
-    def getSign(self, device: "CHSesame2") -> str:
+    def getSign(self, device: "SesameLocker") -> str:
         """Generate a AES-CMAC tag.
 
         Returns:
@@ -84,11 +86,11 @@ class SesameCloud:
 
         return sign
 
-    def getMechStatus(self, device: "CHSesame2") -> CHSesame2MechStatus:
+    def getMechStatus(self, device: "SesameLocker") -> CHSesame2MechStatus:
         """Retrive a mechanical status of a device.
 
         Args:
-            device (CHSesame2): The device for which you want to query.
+            device (SesameLocker): The device for which you want to query.
 
         Returns:
             CHSesame2MechStatus: Current mechanical status of the device.
@@ -107,12 +109,15 @@ class SesameCloud:
             return CHSesame2MechStatus(rawdata=r_json["state"]["reported"]["mechst"])
 
     def sendCmd(
-        self, device: "CHSesame2", cmd: "CHSesame2CMD", history_tag: str = "pysesame3"
+        self,
+        device: "SesameLocker",
+        cmd: "CHSesame2CMD",
+        history_tag: str = "pysesame3",
     ) -> bool:
         """Send a locking/unlocking command.
 
         Args:
-            device (CHSesame2): The device for which you want to query.
+            device (SesameLocker): The device for which you want to query.
             cmd (CHSesame2CMD): Lock, Unlock and Toggle.
             history_tag (CHSesame2CMD): The key tag to sent when locking and unlocking.
 
@@ -148,11 +153,11 @@ class SesameCloud:
             logger.debug("sendCmd result=exception raised")
             return False
 
-    def getHistoryEntries(self, device: "CHSesame2") -> List[CHSesame2History]:
+    def getHistoryEntries(self, device: "SesameLocker") -> List[CHSesame2History]:
         """Retrieve the history of all events with a device.
 
         Args:
-            device (CHSesame2): The device for which you want to query.
+            device (SesameLocker): The device for which you want to query.
 
         Returns:
             list[CHSesame2History]: A list of events.

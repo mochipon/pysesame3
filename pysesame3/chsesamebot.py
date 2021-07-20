@@ -19,14 +19,14 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class CHSesame2(SesameLocker):
+class CHSesameBot(SesameLocker):
     def __init__(
         self,
         authenticator: Union["WebAPIAuth", "CognitoAuth"],
         device_uuid: str,
         secret_key: str,
     ) -> None:
-        """SESAME3 Device Specific Implementation.
+        """SESAME bot Device Specific Implementation.
 
         Args:
             authenticator (Union[WebAPIAuth, CognitoAuth]):
@@ -38,7 +38,7 @@ class CHSesame2(SesameLocker):
         self.setDeviceUUID(device_uuid)
         self.setSecretKey(secret_key)
         self._callback: Optional[
-            Callable[[CHSesame2, CHSesame2MechStatus], None]
+            Callable[[CHSesameBot, CHSesame2MechStatus], None]
         ] = None
 
         # Initial sync of `self._deviceShadowStatus`
@@ -101,12 +101,12 @@ class CHSesame2(SesameLocker):
 
     def subscribeMechStatus(
         self,
-        callback: Optional[Callable[["CHSesame2", CHSesame2MechStatus], None]] = None,
+        callback: Optional[Callable[["CHSesameBot", CHSesame2MechStatus], None]] = None,
     ) -> None:
         """Subscribe to a topic at AWS IoT
 
         Args:
-            callback (Callable[[CHSesame2, CHSesame2MechStatus], None], optional): The registered callback will be executed once an update is delivered. Defaults to `None`.
+            callback (Callable[[CHSesameBot, CHSesame2MechStatus], None], optional): The registered callback will be executed once an update is delivered. Defaults to `None`.
 
         Raises:
             NotImplementedError: If the authenticator is not `AuthType.SDK`.
@@ -172,7 +172,7 @@ class CHSesame2(SesameLocker):
         logger.debug("UUID={}, set={}".format(self.getDeviceUUID(), status))
         self._deviceShadowStatus = status
 
-    def lock(self, history_tag: str = "pysesame3") -> bool:
+    def click(self, history_tag: str = "pysesame3") -> bool:
         """Locking.
 
         Args:
@@ -181,44 +181,13 @@ class CHSesame2(SesameLocker):
         Returns:
             bool: `True` if it is successfully locked, `False` if not.
         """
-        logger.info("UUID={}, Locking...".format(self.getDeviceUUID()))
+        logger.info("UUID={}, Clicking...".format(self.getDeviceUUID()))
         result = self.authenticator.sesame_cloud.sendCmd(
-            self, CHSesame2CMD.LOCK, history_tag
+            self, CHSesame2CMD.CLICK, history_tag
         )
         if result:
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
         return result
-
-    def unlock(self, history_tag: str = "pysesame3") -> bool:
-        """Unlocking.
-
-        Args:
-            history_tag (str): The key tag to sent when locking and unlocking. Defaults to `pysesame3`.
-
-        Returns:
-            bool: `True` if it is successfully unlocked, `False` if not.
-        """
-        logger.info("UUID={}, Unlocking...".format(self.getDeviceUUID()))
-        result = self.authenticator.sesame_cloud.sendCmd(
-            self, CHSesame2CMD.UNLOCK, history_tag
-        )
-        if result:
-            self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
-        return result
-
-    def toggle(self, history_tag: str = "pysesame3") -> bool:
-        """Toggle.
-
-        Args:
-            history_tag (str): The key tag to sent when locking and unlocking. Defaults to `pysesame3`.
-
-        Returns:
-            bool: `True` if it is successfully toggled, `False` if not.
-        """
-        if self.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm:
-            return self.unlock(history_tag)
-        else:
-            return self.lock(history_tag)
 
     def __str__(self) -> str:
         """Return a string representation of an object.
@@ -226,4 +195,4 @@ class CHSesame2(SesameLocker):
         Returns:
             str: The string representation of the object.
         """
-        return f"CHSesame2(deviceUUID={self.getDeviceUUID()}, deviceModel={self.productModel}, mechStatus={self.mechStatus})"
+        return f"CHSesameBot(deviceUUID={self.getDeviceUUID()}, deviceModel={self.productModel}, mechStatus={self.mechStatus})"
