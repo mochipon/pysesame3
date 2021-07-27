@@ -10,7 +10,7 @@ except ImportError:  # pragma: no cover
 from pysesame3.auth import CognitoAuth
 from pysesame3.const import CHSesame2CMD, CHSesame2ShadowStatus
 from pysesame3.device import SesameLocker
-from pysesame3.helper import CHSesame2MechStatus
+from pysesame3.helper import CHProductModel, CHSesameBotMechStatus
 
 if TYPE_CHECKING:
     from pysesame3.auth import WebAPIAuth
@@ -37,8 +37,9 @@ class CHSesameBot(SesameLocker):
 
         self.setDeviceUUID(device_uuid)
         self.setSecretKey(secret_key)
+        self.setProductModel(CHProductModel.SesameBot1)
         self._callback: Optional[
-            Callable[[CHSesameBot, CHSesame2MechStatus], None]
+            Callable[[CHSesameBot, CHSesameBotMechStatus], None]
         ] = None
 
         # Initial sync of `self._deviceShadowStatus`
@@ -46,13 +47,15 @@ class CHSesameBot(SesameLocker):
         logger.debug("Initialized={}".format(str(self)))
 
     @property
-    def mechStatus(self) -> CHSesame2MechStatus:
+    def mechStatus(self) -> CHSesameBotMechStatus:
         """Return a mechanical status of a device.
 
         Returns:
-            CHSesame2MechStatus: Current mechanical status of the device.
+            CHSesameBotMechStatus: Current mechanical status of the device.
         """
-        status = self.authenticator.sesame_cloud.getMechStatus(self)
+        status = CHSesameBotMechStatus(
+            self.authenticator.sesame_cloud.getMechStatus(self)
+        )
         logger.debug("UUID={}, mechStatus={}".format(self.getDeviceUUID(), str(status)))
 
         if status.isInLockRange():
@@ -71,7 +74,9 @@ class CHSesameBot(SesameLocker):
         try:
             logger.info("UUID={}, Shadow updated".format(self.getDeviceUUID()))
             shadow = json.loads(payload.decode("utf-8"))
-            status = CHSesame2MechStatus(rawdata=shadow["state"]["reported"]["mechst"])
+            status = CHSesameBotMechStatus(
+                rawdata=shadow["state"]["reported"]["mechst"]
+            )
             logger.debug(
                 "UUID={}, reported mechst={}".format(self.getDeviceUUID(), str(status))
             )
@@ -101,12 +106,14 @@ class CHSesameBot(SesameLocker):
 
     def subscribeMechStatus(
         self,
-        callback: Optional[Callable[["CHSesameBot", CHSesame2MechStatus], None]] = None,
+        callback: Optional[
+            Callable[["CHSesameBot", CHSesameBotMechStatus], None]
+        ] = None,
     ) -> None:
         """Subscribe to a topic at AWS IoT
 
         Args:
-            callback (Callable[[CHSesameBot, CHSesame2MechStatus], None], optional): The registered callback will be executed once an update is delivered. Defaults to `None`.
+            callback (Callable[[CHSesameBot, CHSesameBotMechStatus], None], optional): The registered callback will be executed once an update is delivered. Defaults to `None`.
 
         Raises:
             NotImplementedError: If the authenticator is not `AuthType.SDK`.

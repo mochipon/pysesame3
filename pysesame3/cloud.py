@@ -2,7 +2,7 @@ import base64
 import logging
 import sys
 import time
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 try:
     import certifi
@@ -17,7 +17,6 @@ from Crypto.Cipher import AES
 from Crypto.Hash import CMAC
 
 from .const import APIGW_URL, IOT_EP, OFFICIALAPI_URL, AuthType
-from .helper import CHSesame2MechStatus
 from .history import CHSesame2History
 
 if TYPE_CHECKING:
@@ -86,27 +85,27 @@ class SesameCloud:
 
         return sign
 
-    def getMechStatus(self, device: "SesameLocker") -> CHSesame2MechStatus:
+    def getMechStatus(self, device: "SesameLocker") -> Union[Dict, str]:
         """Retrive a mechanical status of a device.
 
         Args:
             device (SesameLocker): The device for which you want to query.
 
         Returns:
-            CHSesame2MechStatus: Current mechanical status of the device.
+            Union[Dict, str]: Current mechanical status of the device. `Dict` if using WebAPIAuth, and `str` if using CognitoAuth.
         """
         if self._authenticator.login_method == AuthType.WebAPI:
             url = "{}/{}".format(OFFICIALAPI_URL, device.getDeviceUUID())
             response = self.requestAPI("GET", url)
             r_json = response.json()
-            return CHSesame2MechStatus(dictdata=r_json)
+            return r_json
         else:
             url = "https://{}/things/sesame2/shadow?name={}".format(
                 IOT_EP, device.getDeviceUUID()
             )
             response = self.requestAPI("GET", url)
             r_json = response.json()
-            return CHSesame2MechStatus(rawdata=r_json["state"]["reported"]["mechst"])
+            return r_json["state"]["reported"]["mechst"]
 
     def sendCmd(
         self,
