@@ -12,9 +12,10 @@ from moto import mock_cognitoidentity
 from pysesame3.auth import CognitoAuth, WebAPIAuth
 from pysesame3.chsesamebot import CHSesameBot
 from pysesame3.const import CHSesame2ShadowStatus
+from pysesame3.helper import CHSesameBotMechStatus
 from pysesame3.history import CHSesame2History
 
-from .utils import load_fixture
+from .utils import TypeMatcher, load_fixture
 
 
 @pytest.fixture(autouse=True)
@@ -22,12 +23,12 @@ def mock_requests():
     with requests_mock.Mocker() as mock:
         mock.get(
             "https://app.candyhouse.co/api/sesame2/126d3d66-9222-4e5a-bcde-0c6629d48d43",
-            json=load_fixture("lock_get_locked.json"),
+            json=load_fixture("button_get_locked.json"),
         )
 
         mock.get(
             "https://app.candyhouse.co/api/sesame2/e0e56521-63d8-4da5-ba4b-c4a6a5e353f1",
-            json=load_fixture("lock_get_unlocked.json"),
+            json=load_fixture("button_get_unlocked.json"),
         )
 
         mock.post(
@@ -40,12 +41,12 @@ def mock_requests():
 
         mock.get(
             "https://a3i4hui4gxwoo8-ats.iot.ap-northeast-1.amazonaws.com/things/sesame2/shadow?name=126D3D66-9222-4E5A-BCDE-0C6629D48D43",
-            json=load_fixture("lock_shadow_locked.json"),
+            json=load_fixture("button_shadow_locked.json"),
         )
 
         mock.get(
             "https://a3i4hui4gxwoo8-ats.iot.ap-northeast-1.amazonaws.com/things/sesame2/shadow?name=E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1",
-            json=load_fixture("lock_shadow_unlocked.json"),
+            json=load_fixture("button_shadow_unlocked.json"),
         )
 
         mock.post(
@@ -120,7 +121,7 @@ class TestCHSesameBot:
     def test_CHSesameBot(self):
         assert (
             str(self.key_locked)
-            == "CHSesameBot(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, mechStatus=CHSesame2MechStatus(Battery=67% (5.87V), isInLockRange=True, isInUnlockRange=False, Position=11))"
+            == "CHSesameBot(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=CHProductModel.SesameBot1, mechStatus=CHSesameBotMechStatus(Battery=100% (6.00V), motorStatus=0))"
         )
 
     def test_CHSesameBot_subscribeMechStatus_raises_exception_with_WebAPI(self):
@@ -187,14 +188,14 @@ class TestCHSesameBotCognito:
     def test_CHSesameBot(self):
         assert (
             str(self.key_locked)
-            == "CHSesameBot(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, mechStatus=CHSesame2MechStatus(Battery=100% (6.11V), isInLockRange=True, isInUnlockRange=False, Position=29))"
+            == "CHSesameBot(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=CHProductModel.SesameBot1, mechStatus=CHSesameBotMechStatus(Battery=100% (3.00V), motorStatus=0))"
         )
 
     def test_CHSesameBot_iot_shadow_callback_with_missing_mechst(self):
         assert (
             self.key_locked._iot_shadow_callback(
                 "$aws/things/sesame2/shadow/name/126D3D66-9222-4E5A-BCDE-0C6629D48D43/update/accepted",
-                json.dumps(load_fixture("lock_shadow_missing_mechst.json")).encode(),
+                json.dumps(load_fixture("shadow_missing_mechst.json")).encode(),
             )
             is None
         )
@@ -222,6 +223,18 @@ class TestCHSesameBotCognito:
         )
         assert (
             self.key_unlocked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
+        )
+
+    def test_CHSesameBot_iot_shadow_callback_with_user_dedefined_callback(self):
+        m = MagicMock()
+        self.key_unlocked._callback = m
+
+        self.key_unlocked._iot_shadow_callback(
+            "$aws/things/sesame2/shadow/name/E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1/update/accepted",
+            json.dumps(load_fixture("lock_shadow_locked.json")).encode(),
+        )
+        m.assert_called_once_with(
+            TypeMatcher(CHSesameBot), TypeMatcher(CHSesameBotMechStatus)
         )
 
     def test_CHSesameBot_subscribeMechStatus_raises_exception_on_invalid_arguments(
