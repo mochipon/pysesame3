@@ -126,7 +126,7 @@ class TestCHSesame2:
     def test_CHSesame2(self):
         assert (
             str(self.key_locked)
-            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, mechStatus=CHSesame2MechStatus(Battery=67% (5.87V), isInLockRange=True, isInUnlockRange=False, Position=11))"
+            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=CHProductModel.SS2, mechStatus=CHSesame2MechStatus(Battery=67% (5.87V), isInLockRange=True, isInUnlockRange=False, position=11))"
         )
 
     def test_CHSesame2_subscribeMechStatus_raises_exception_with_WebAPI(self):
@@ -223,14 +223,14 @@ class TestCHSesame2Cognito:
     def test_CHSesame2(self):
         assert (
             str(self.key_locked)
-            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=None, mechStatus=CHSesame2MechStatus(Battery=100% (6.11V), isInLockRange=True, isInUnlockRange=False, Position=29))"
+            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=CHProductModel.SS2, mechStatus=CHSesame2MechStatus(Battery=100% (6.11V), isInLockRange=True, isInUnlockRange=False, retCode=0, target=-32768, position=29))"
         )
 
     def test_CHSesame2_iot_shadow_callback_with_missing_mechst(self):
         assert (
             self.key_locked._iot_shadow_callback(
                 "$aws/things/sesame2/shadow/name/126D3D66-9222-4E5A-BCDE-0C6629D48D43/update/accepted",
-                json.dumps(load_fixture("lock_shadow_missing_mechst.json")).encode(),
+                json.dumps(load_fixture("shadow_missing_mechst.json")).encode(),
             )
             is None
         )

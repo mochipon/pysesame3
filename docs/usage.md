@@ -1,25 +1,34 @@
 ## Example Usage
 
 ```python
-import time
 from pprint import pprint
+from typing import TYPE_CHECKING, Union
 
 from pysesame3.auth import CognitoAuth, WebAPIAuth
 from pysesame3.chsesame2 import CHSesame2  # For SESAME 3
 from pysesame3.chsesamebot import CHSesameBot  # For SESAME bot
-from pysesame3.device import SesameLocker  # Just for type hinting
-from pysesame3.helper import CHSesame2MechStatus  # Just for type hinting
+from pysesame3.helper import CHProductModel
+
+if TYPE_CHECKING:
+    from pysesame3.device import SesameLocker
+    from pysesame3.helper import CHSesame2MechStatus, CHSesameBotMechStatus
 
 
-def callback(device: SesameLocker, status: CHSesame2MechStatus):
+def callback(
+    device: "SesameLocker", status: Union["CHSesame2MechStatus", "CHSesameBotMechStatus"]
+):
     print("=" * 10)
     print("mechStatus is updated!")
     print("UUID: {}".format(device.getDeviceUUID()))
+    print("Product Model: {}".format(device.productModel))
     print("Battery: {}%".format(status.getBatteryPrecentage()))
     print("Battery: {:.2f}V".format(status.getBatteryVoltage()))
     print("isInLockRange: {}".format(status.isInLockRange()))
     print("isInUnlockRange: {}".format(status.isInUnlockRange()))
-    print("Position: {}".format(status.getPosition()))
+    if device.productModel == CHProductModel.SS2:
+        print("Position: {}".format(status.getPosition()))
+    elif device.productModel == CHProductModel.SesameBot1:
+        print("Motor Status: {}".format(status.getMotorStatus()))
     print("=" * 10)
 
 
@@ -107,16 +116,21 @@ def main():
     print("=" * 10)
     print("[Prompt]")
     while True:
-        val = input("Action [lock/unlock/toggle]: ")
+        val = input("Action [lock/unlock/toggle/click]: ")
 
-        if val == "lock":
-            device.lock(history_tag="My Script")
-        elif val == "unlock":
-            device.unlock(history_tag="My Script")
-        elif val == "toggle":
-            device.toggle(history_tag="My Script")
-        else:
-            continue
+        if device.productModel == CHProductModel.SS2:
+            if val == "lock":
+                device.lock(history_tag="My Script")
+            elif val == "unlock":
+                device.unlock(history_tag="My Script")
+            elif val == "toggle":
+                device.toggle(history_tag="My Script")
+
+        if device.productModel == CHProductModel.SesameBot1:
+            if val == "click":
+                device.click(history_tag="My Script")
+
+        continue
 
 
 if __name__ == "__main__":

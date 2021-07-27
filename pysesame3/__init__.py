@@ -1,7 +1,7 @@
 """Top-level package for pysesame3."""
 try:
     import importlib.metadata as importlib_metadata
-except ModuleNotFoundError:
+except ModuleNotFoundError:  # pragma: no cover
     import importlib_metadata  # type: ignore
 
 __author__ = """Masaki Tagawa"""

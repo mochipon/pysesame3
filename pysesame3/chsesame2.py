@@ -10,7 +10,7 @@ except ImportError:  # pragma: no cover
 from pysesame3.auth import CognitoAuth
 from pysesame3.const import CHSesame2CMD, CHSesame2ShadowStatus
 from pysesame3.device import SesameLocker
-from pysesame3.helper import CHSesame2MechStatus
+from pysesame3.helper import CHProductModel, CHSesame2MechStatus
 
 if TYPE_CHECKING:
     from pysesame3.auth import WebAPIAuth
@@ -37,6 +37,7 @@ class CHSesame2(SesameLocker):
 
         self.setDeviceUUID(device_uuid)
         self.setSecretKey(secret_key)
+        self.setProductModel(CHProductModel.SS2)
         self._callback: Optional[
             Callable[[CHSesame2, CHSesame2MechStatus], None]
         ] = None
@@ -52,7 +53,9 @@ class CHSesame2(SesameLocker):
         Returns:
             CHSesame2MechStatus: Current mechanical status of the device.
         """
-        status = self.authenticator.sesame_cloud.getMechStatus(self)
+        status = CHSesame2MechStatus(
+            self.authenticator.sesame_cloud.getMechStatus(self)
+        )
         logger.debug("UUID={}, mechStatus={}".format(self.getDeviceUUID(), str(status)))
 
         if status.isInLockRange():
