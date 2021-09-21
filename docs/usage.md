@@ -5,7 +5,7 @@ from pprint import pprint
 from typing import TYPE_CHECKING, Union
 
 from pysesame3.auth import CognitoAuth, WebAPIAuth
-from pysesame3.chsesame2 import CHSesame2  # For SESAME 3
+from pysesame3.chsesame2 import CHSesame2  # For SESAME 3, 4
 from pysesame3.chsesamebot import CHSesameBot  # For SESAME bot
 from pysesame3.helper import CHProductModel
 
@@ -56,9 +56,9 @@ def main():
     your_key_secret = "SECRET_KEY"
 
     """
-    This library supports SESAME3 and SESAME bot.
+    This library supports SESAME 3, SESAME 4, and SESAME bot.
 
-    `CHSesame2`: SESAME3
+    `CHSesame2`: SESAME 3, 4
     `CHSesameBot`: SESAME bot
     """
     device = CHSesame2(
@@ -118,7 +118,7 @@ def main():
     while True:
         val = input("Action [lock/unlock/toggle/click]: ")
 
-        if device.productModel == CHProductModel.SS2:
+        if device.productModel in [CHProductModel.SS2, CHProductModel.SS4]:
             if val == "lock":
                 device.lock(history_tag="My Script")
             elif val == "unlock":
