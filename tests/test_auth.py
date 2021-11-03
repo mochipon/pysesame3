@@ -7,6 +7,7 @@ import requests
 from moto import mock_cognitoidentity
 
 from pysesame3.auth import CognitoAuth, WebAPIAuth
+from pysesame3.const import CLIENT_ID
 
 
 def test_WebAPIAuth_raises_exception_on_missing_arguments():
@@ -23,10 +24,6 @@ def test_WebAPIAuth_raises_exception_on_invalid_apikey():
 def test_CognitoAuth_raises_exception_on_missing_arguments():
     with pytest.raises(TypeError) as excinfo:
         CognitoAuth()
-    assert "required positional argument" in str(excinfo.value)
-
-    with pytest.raises(TypeError) as excinfo:
-        CognitoAuth(apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE")
     assert "required positional argument" in str(excinfo.value)
 
     with pytest.raises(TypeError) as excinfo:
@@ -51,6 +48,21 @@ def test_CognitoAuth_call_raises_exception_on_broken_PreparedRequest():
 
     with pytest.raises(TypeError):
         c(req)
+
+
+def test_CognitoAuth_uses_default_CLIENT_ID():
+    c = CognitoAuth(
+        apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE",
+    )
+    assert c.client_id == CLIENT_ID
+
+
+def test_CognitoAuth_uses_user_defined_CLIENT_ID():
+    c = CognitoAuth(
+        apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE",
+        client_id="us-east-1:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    )
+    assert c.client_id == "us-east-1:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
 
 
 @mock_cognitoidentity
