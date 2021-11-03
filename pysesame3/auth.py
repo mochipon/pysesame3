@@ -10,7 +10,7 @@ except ImportError:  # pragma: no cover
 import requests
 
 from .cloud import AWSIoT, SesameCloud
-from .const import IOT_EP, AuthType
+from .const import CLIENT_ID, IOT_EP, AuthType
 from .helper import RegexHelper
 
 if TYPE_CHECKING:
@@ -65,7 +65,7 @@ class WebAPIAuth(requests.auth.AuthBase):
 
 
 class CognitoAuth:
-    def __init__(self, apikey: str, client_id: str):
+    def __init__(self, apikey: str, client_id: str = CLIENT_ID):
         """Generic Implementation for Cognito Authentication.
 
         Args:
