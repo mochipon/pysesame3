@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "pysesame3"
-version = "0.5.0"
+version = "0.5.1"
 homepage = "https://github.com/mochipon/pysesame3"
 description = "Unofficial library to communicate with Sesame smart locks."
 authors = ["Masaki Tagawa <masaki@tagawa.email>"]
