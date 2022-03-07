@@ -190,7 +190,7 @@ class CHSesame2MechStatus(CHSesameProtocolMechStatus):
         else:
             raise TypeError("Invalid input type")
 
-    def getBatteryPrecentage(self) -> int:
+    def getBatteryPercentage(self) -> int:
         """Return battery status information as a percentage.
 
         Returns:
@@ -222,9 +222,9 @@ class CHSesame2MechStatus(CHSesameProtocolMechStatus):
 
     def __str__(self) -> str:
         try:
-            return f"CHSesame2MechStatus(Battery={self.getBatteryPrecentage()}% ({self.getBatteryVoltage():.2f}V), isInLockRange={self.isInLockRange()}, isInUnlockRange={self.isInUnlockRange()}, retCode={self.getRetCode()}, target={self.getTarget()}, position={self.getPosition()})"
+            return f"CHSesame2MechStatus(Battery={self.getBatteryPercentage()}% ({self.getBatteryVoltage():.2f}V), isInLockRange={self.isInLockRange()}, isInUnlockRange={self.isInUnlockRange()}, retCode={self.getRetCode()}, target={self.getTarget()}, position={self.getPosition()})"
         except NotImplementedError:
-            return f"CHSesame2MechStatus(Battery={self.getBatteryPrecentage()}% ({self.getBatteryVoltage():.2f}V), isInLockRange={self.isInLockRange()}, isInUnlockRange={self.isInUnlockRange()}, position={self.getPosition()})"
+            return f"CHSesame2MechStatus(Battery={self.getBatteryPercentage()}% ({self.getBatteryVoltage():.2f}V), isInLockRange={self.isInLockRange()}, isInUnlockRange={self.isInUnlockRange()}, position={self.getPosition()})"
 
 
 class CHSesameBotMechStatus(CHSesameProtocolMechStatus):
@@ -255,7 +255,7 @@ class CHSesameBotMechStatus(CHSesameProtocolMechStatus):
         else:
             raise TypeError("Invalid input type")
 
-    def getBatteryPrecentage(self) -> int:
+    def getBatteryPercentage(self) -> int:
         """Return battery status information as a percentage.
 
         Returns:
@@ -296,7 +296,7 @@ class CHSesameBotMechStatus(CHSesameProtocolMechStatus):
         return self._motorStatus
 
     def __str__(self) -> str:
-        return f"CHSesameBotMechStatus(Battery={self.getBatteryPrecentage()}% ({self.getBatteryVoltage():.2f}V), motorStatus={self.getMotorStatus()})"
+        return f"CHSesameBotMechStatus(Battery={self.getBatteryPercentage()}% ({self.getBatteryVoltage():.2f}V), motorStatus={self.getMotorStatus()})"
 
 
 class RegexHelper:
