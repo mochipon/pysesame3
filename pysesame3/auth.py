@@ -10,7 +10,7 @@ except ImportError:  # pragma: no cover
 import requests
 
 from .cloud import AWSIoT, SesameCloud
-from .const import CLIENT_ID, IOT_EP, AuthType
+from .const import CLIENT_ID, IOT_EP, APIGW_API_KEY, AuthType
 from .helper import RegexHelper
 
 if TYPE_CHECKING:
@@ -198,7 +198,7 @@ class CognitoAuth:
         if IOT_EP in request.url:
             service = "iotdata"
         else:
-            request.headers["x-api-key"] = self._apikey
+            request.headers["x-api-key"] = APIGW_API_KEY
             service = "execute-api"
 
         auth = AWS4Auth(

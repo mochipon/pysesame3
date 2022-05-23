@@ -2,6 +2,7 @@ from enum import Enum, IntEnum, auto
 
 OFFICIALAPI_URL = "https://app.candyhouse.co/api/sesame2"
 APIGW_URL = "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod"
+APIGW_API_KEY = "iGgXj9GorS4PeH90mAysg1l7kdvoIPxM25mPFl3k"
 IOT_EP = "a3i4hui4gxwoo8-ats.iot.ap-northeast-1.amazonaws.com"
 CLIENT_ID = "ap-northeast-1:0a1820f1-dbb3-4bca-9227-2a92f6abf0ae"
 
