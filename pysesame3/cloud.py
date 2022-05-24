@@ -2,6 +2,7 @@ import base64
 import logging
 import sys
 import time
+import uuid
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 try:
@@ -273,7 +274,7 @@ class AWSIoT:
             ca_filepath=certifi.where(),
             on_connection_interrupted=self._on_connection_interrupted,
             on_connection_resumed=self._on_connection_resumed,
-            client_id=self._authenticator.client_id,
+            client_id=str(uuid.uuid4()),
             clean_session=False,
             keep_alive_secs=6,
         )
