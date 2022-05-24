@@ -1,4 +1,5 @@
 import importlib
+import logging
 import re
 import sys
 from enum import Enum
@@ -8,6 +9,8 @@ if sys.version_info[:2] >= (3, 8):
     from typing import TypedDict
 else:  # pragma: no cover
     from typing_extensions import TypedDict
+
+logger = logging.getLogger(__name__)
 
 
 class ProductData(TypedDict):
@@ -190,7 +193,7 @@ class CHSesame2MechStatus(CHSesameProtocolMechStatus):
         else:
             raise TypeError("Invalid input type")
 
-    def getBatteryPrecentage(self) -> int:
+    def getBatteryPercentage(self) -> int:
         """Return battery status information as a percentage.
 
         Returns:
@@ -220,11 +223,23 @@ class CHSesame2MechStatus(CHSesameProtocolMechStatus):
 
             return ret
 
+    def getBatteryPrecentage(self) -> int:
+        """Return battery status information as a percentage.
+        The method name contains typo, kept for backward compatibility.
+
+        Returns:
+            int: Battery power left as a percentage.
+        """
+        logger.error(
+            'This "getBatteryPrecentage" method is duplecated. Please use "getBatteryPercentage" instead.'
+        )
+        return self.getBatteryPercentage()
+
     def __str__(self) -> str:
         try:
-            return f"CHSesame2MechStatus(Battery={self.getBatteryPrecentage()}% ({self.getBatteryVoltage():.2f}V), isInLockRange={self.isInLockRange()}, isInUnlockRange={self.isInUnlockRange()}, retCode={self.getRetCode()}, target={self.getTarget()}, position={self.getPosition()})"
+            return f"CHSesame2MechStatus(Battery={self.getBatteryPercentage()}% ({self.getBatteryVoltage():.2f}V), isInLockRange={self.isInLockRange()}, isInUnlockRange={self.isInUnlockRange()}, retCode={self.getRetCode()}, target={self.getTarget()}, position={self.getPosition()})"
         except NotImplementedError:
-            return f"CHSesame2MechStatus(Battery={self.getBatteryPrecentage()}% ({self.getBatteryVoltage():.2f}V), isInLockRange={self.isInLockRange()}, isInUnlockRange={self.isInUnlockRange()}, position={self.getPosition()})"
+            return f"CHSesame2MechStatus(Battery={self.getBatteryPercentage()}% ({self.getBatteryVoltage():.2f}V), isInLockRange={self.isInLockRange()}, isInUnlockRange={self.isInUnlockRange()}, position={self.getPosition()})"
 
 
 class CHSesameBotMechStatus(CHSesameProtocolMechStatus):
@@ -255,7 +270,7 @@ class CHSesameBotMechStatus(CHSesameProtocolMechStatus):
         else:
             raise TypeError("Invalid input type")
 
-    def getBatteryPrecentage(self) -> int:
+    def getBatteryPercentage(self) -> int:
         """Return battery status information as a percentage.
 
         Returns:
@@ -292,11 +307,23 @@ class CHSesameBotMechStatus(CHSesameProtocolMechStatus):
 
             return ret
 
+    def getBatteryPrecentage(self) -> int:
+        """Return battery status information as a percentage.
+        The method name contains typo, kept for backward compatibility.
+
+        Returns:
+            int: Battery power left as a percentage.
+        """
+        logger.error(
+            'This "getBatteryPrecentage" method is duplecated. Please use "getBatteryPercentage" instead.'
+        )
+        return self.getBatteryPercentage()
+
     def getMotorStatus(self) -> int:
         return self._motorStatus
 
     def __str__(self) -> str:
-        return f"CHSesameBotMechStatus(Battery={self.getBatteryPrecentage()}% ({self.getBatteryVoltage():.2f}V), motorStatus={self.getMotorStatus()})"
+        return f"CHSesameBotMechStatus(Battery={self.getBatteryPercentage()}% ({self.getBatteryVoltage():.2f}V), motorStatus={self.getMotorStatus()})"
 
 
 class RegexHelper:
