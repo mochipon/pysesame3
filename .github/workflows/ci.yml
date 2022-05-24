@@ -38,7 +38,7 @@ jobs:
           timezoneWindows: "Tokyo Standard Time"
 
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-versions }}
 
@@ -51,7 +51,7 @@ jobs:
         run:
           tox
 
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         if: ${{ success() }}
         with:
           fail_ci_if_error: true
@@ -72,7 +72,7 @@ jobs:
           timezoneWindows: "Tokyo Standard Time"
 
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: 3.9
 
