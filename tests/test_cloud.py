@@ -29,11 +29,6 @@ def mock_requests():
             "https://app.candyhouse.co/api/sesame2/FAKEUUID/history?page=0&lg=10",
             json=load_fixture("history.json"),
         )
-
-        mock.get(
-            "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/sesame2/FAKEUUID/history",
-            json=load_fixture("history.json"),
-        )
         yield mock
 
 

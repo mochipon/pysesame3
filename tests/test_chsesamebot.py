@@ -41,32 +41,10 @@ def mock_requests():
         )
 
         mock.get(
-            "https://a3i4hui4gxwoo8-ats.iot.ap-northeast-1.amazonaws.com/things/sesame2/shadow?name=126D3D66-9222-4E5A-BCDE-0C6629D48D43",
-            json=load_fixture("button_shadow_locked.json"),
-        )
-
-        mock.get(
-            "https://a3i4hui4gxwoo8-ats.iot.ap-northeast-1.amazonaws.com/things/sesame2/shadow?name=E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1",
-            json=load_fixture("button_shadow_unlocked.json"),
-        )
-
-        mock.post(
-            "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/iot/sesame2/126D3D66-9222-4E5A-BCDE-0C6629D48D43"
-        )
-
-        mock.post(
-            "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/iot/sesame2/E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1"
-        )
-
-        mock.get(
             "https://app.candyhouse.co/api/sesame2/126d3d66-9222-4e5a-bcde-0c6629d48d43/history?page=0&lg=10",
             json=load_fixture("history.json"),
         )
 
-        mock.get(
-            "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/sesame2/126D3D66-9222-4E5A-BCDE-0C6629D48D43/history",
-            json=load_fixture("history.json"),
-        )
         yield mock
 
 
@@ -196,7 +174,7 @@ class TestCHSesameBotCognito:
     def test_CHSesameBot(self):
         assert (
             str(self.key_locked)
-            == "CHSesameBot(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=CHProductModel.SesameBot1, mechStatus=CHSesameBotMechStatus(Battery=100% (3.00V), motorStatus=0))"
+            == "CHSesameBot(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=CHProductModel.SesameBot1, mechStatus=CHSesameBotMechStatus(Battery=100% (6.00V), motorStatus=0))"
         )
 
     def test_CHSesameBot_iot_shadow_callback_with_missing_mechst(self):
@@ -284,13 +262,13 @@ class TestCHSesameBotCognito:
     def test_CHSesameBot_click_fails_HTTP_requests(self):
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/iot/sesame2/E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1",
+                "https://app.candyhouse.co/api/sesame2/126d3d66-9222-4e5a-bcde-0c6629d48d43/cmd",
                 status_code=500,
             )
-            assert not self.key_unlocked.click()
+            assert not self.key_locked.click()
             assert (
-                self.key_unlocked.getDeviceShadowStatus()
-                == CHSesame2ShadowStatus.UnlockedWm
+                self.key_locked.getDeviceShadowStatus()
+                == CHSesame2ShadowStatus.LockedWm
             )
 
     def test_CHSesameBot_click(self):

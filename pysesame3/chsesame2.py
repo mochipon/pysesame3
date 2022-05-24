@@ -8,7 +8,7 @@ except ImportError:  # pragma: no cover
     pass
 
 from pysesame3.auth import CognitoAuth
-from pysesame3.const import CHSesame2CMD, CHSesame2ShadowStatus
+from pysesame3.const import AuthType, CHSesame2CMD, CHSesame2ShadowStatus
 from pysesame3.device import SesameLocker
 from pysesame3.helper import CHProductModel, CHSesame2MechStatus
 
@@ -94,13 +94,26 @@ class CHSesame2(SesameLocker):
             if original_status != self.getDeviceShadowStatus():
                 if self._callback is not None and callable(self._callback):
                     logger.debug(
-                        "UUID={}, Custom callback triggered".format(
+                        "UUID={}, Custom callback is triggered".format(
                             self.getDeviceUUID()
                         )
                     )
                     self._callback(self, status)
+                else:
+                    logger.debug(
+                        "UUID={}, Custom callback is not callable".format(
+                            self.getDeviceUUID()
+                        )
+                    )
+            else:
+                logger.debug(
+                    "UUID={}, Custom callback is not triggered; same getDeviceShadowStatus result".format(
+                        self.getDeviceUUID()
+                    )
+                )
         except Exception as err:  # noqa: F841
             # TODO: handle exceptions correctly
+            logger.exception(err)
             pass
 
     def subscribeMechStatus(
@@ -189,7 +202,7 @@ class CHSesame2(SesameLocker):
         result = self.authenticator.sesame_cloud.sendCmd(
             self, CHSesame2CMD.LOCK, history_tag
         )
-        if result:
+        if result and self._authenticator.login_method == AuthType.WebAPI:
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.LockedWm)
         return result
 
@@ -206,7 +219,7 @@ class CHSesame2(SesameLocker):
         result = self.authenticator.sesame_cloud.sendCmd(
             self, CHSesame2CMD.UNLOCK, history_tag
         )
-        if result:
+        if result and self._authenticator.login_method == AuthType.WebAPI:
             self.setDeviceShadowStatus(CHSesame2ShadowStatus.UnlockedWm)
         return result
 
