@@ -69,7 +69,8 @@ class CHSesame2(SesameLocker):
         """Callback for updated shadows.
 
         Args:
-            message (dict): The device shadow
+            topic (str): The topic to subscribe to.
+            payload (bytes): Binary payload data.
         """
         try:
             logger.info("UUID={}, Shadow updated".format(self.getDeviceUUID()))
