@@ -10,7 +10,7 @@ except ImportError:  # pragma: no cover
 import requests
 
 from .cloud import AWSIoT, SesameCloud
-from .const import CLIENT_ID, IOT_EP, APIGW_API_KEY, AuthType
+from .const import APIGW_API_KEY, CLIENT_ID, IOT_EP, AuthType
 from .helper import RegexHelper
 
 if TYPE_CHECKING:
