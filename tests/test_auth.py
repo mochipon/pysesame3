@@ -2,6 +2,7 @@
 
 """Tests for `pysesame3` package."""
 
+import boto3
 import pytest
 import requests
 from moto import mock_cognitoidentity
@@ -39,10 +40,16 @@ def test_CognitoAuth_raises_exception_on_invalid_apikey():
     assert "length should be 40" in str(excinfo.value)
 
 
+@mock_cognitoidentity
 def test_CognitoAuth_call_raises_exception_on_broken_PreparedRequest():
+    cognito_identity = boto3.client("cognito-identity", region_name="ap-northeast-1")
+    identity_pool_data = cognito_identity.create_identity_pool(
+        IdentityPoolName="test_identity_pool", AllowUnauthenticatedIdentities=False
+    )
+
     c = CognitoAuth(
         apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE",
-        client_id="us-east-1:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        client_id=identity_pool_data["IdentityPoolId"],
     )
     req = requests.PreparedRequest()
 
@@ -57,19 +64,16 @@ def test_CognitoAuth_uses_default_CLIENT_ID():
     assert c.client_id == CLIENT_ID
 
 
-def test_CognitoAuth_uses_user_defined_CLIENT_ID():
-    c = CognitoAuth(
-        apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE",
-        client_id="us-east-1:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-    )
-    assert c.client_id == "us-east-1:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
-
-
 @mock_cognitoidentity
 def test_CognitoAuth_authenticate():
+    cognito_identity = boto3.client("cognito-identity", region_name="ap-northeast-1")
+    identity_pool_data = cognito_identity.create_identity_pool(
+        IdentityPoolName="test_identity_pool", AllowUnauthenticatedIdentities=False
+    )
+
     c = CognitoAuth(
         apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE",
-        client_id="us-east-1:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        client_id=identity_pool_data["IdentityPoolId"],
     )
 
     (access_key_id, secret_key, session_token) = c.authenticate()

@@ -5,6 +5,8 @@
 import asyncio
 import sys
 
+import boto3
+
 if sys.version_info[:2] < (3, 8):
     from asynctest import patch
 else:
@@ -53,9 +55,16 @@ class TestAWSIoT:
     @pytest.fixture(autouse=True)
     def aws_iot(self):
         with mock_cognitoidentity():
+            cognito_identity = boto3.client(
+                "cognito-identity", region_name="ap-northeast-1"
+            )
+            identity_pool_data = cognito_identity.create_identity_pool(
+                IdentityPoolName="test_identity_pool",
+                AllowUnauthenticatedIdentities=False,
+            )
             cl = CognitoAuth(
                 apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE",
-                client_id="ap-northeast-1:fakefakefake",
+                client_id=identity_pool_data["IdentityPoolId"],
             )
             yield AWSIoT(cl)
 
