@@ -21,7 +21,7 @@ def callback(
     print("mechStatus is updated!")
     print("UUID: {}".format(device.getDeviceUUID()))
     print("Product Model: {}".format(device.productModel))
-    print("Battery: {}%".format(status.getBatteryPrecentage()))
+    print("Battery: {}%".format(status.getBatteryPercentage()))
     print("Battery: {:.2f}V".format(status.getBatteryVoltage()))
     print("isInLockRange: {}".format(status.isInLockRange()))
     print("isInUnlockRange: {}".format(status.isInUnlockRange()))
