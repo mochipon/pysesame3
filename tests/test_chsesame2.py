@@ -40,32 +40,10 @@ def mock_requests():
         )
 
         mock.get(
-            "https://a3i4hui4gxwoo8-ats.iot.ap-northeast-1.amazonaws.com/things/sesame2/shadow?name=126D3D66-9222-4E5A-BCDE-0C6629D48D43",
-            json=load_fixture("lock_shadow_locked.json"),
-        )
-
-        mock.get(
-            "https://a3i4hui4gxwoo8-ats.iot.ap-northeast-1.amazonaws.com/things/sesame2/shadow?name=E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1",
-            json=load_fixture("lock_shadow_unlocked.json"),
-        )
-
-        mock.post(
-            "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/iot/sesame2/126D3D66-9222-4E5A-BCDE-0C6629D48D43"
-        )
-
-        mock.post(
-            "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/iot/sesame2/E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1"
-        )
-
-        mock.get(
             "https://app.candyhouse.co/api/sesame2/126d3d66-9222-4e5a-bcde-0c6629d48d43/history?page=0&lg=10",
             json=load_fixture("history.json"),
         )
 
-        mock.get(
-            "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/sesame2/126D3D66-9222-4E5A-BCDE-0C6629D48D43/history",
-            json=load_fixture("history.json"),
-        )
         yield mock
 
 
@@ -231,7 +209,7 @@ class TestCHSesame2Cognito:
     def test_CHSesame2(self):
         assert (
             str(self.key_locked)
-            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=CHProductModel.SS2, mechStatus=CHSesame2MechStatus(Battery=100% (6.11V), isInLockRange=True, isInUnlockRange=False, retCode=0, target=-32768, position=29))"
+            == "CHSesame2(deviceUUID=126D3D66-9222-4E5A-BCDE-0C6629D48D43, deviceModel=CHProductModel.SS2, mechStatus=CHSesame2MechStatus(Battery=67% (5.87V), isInLockRange=True, isInUnlockRange=False, position=11))"
         )
 
     def test_CHSesame2_iot_shadow_callback_with_missing_mechst(self):
@@ -321,7 +299,7 @@ class TestCHSesame2Cognito:
     def test_CHSesame2_lock_fails_HTTP_requests(self):
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://jhcr1i3ecb.execute-api.ap-northeast-1.amazonaws.com/prod/device/v1/iot/sesame2/E0E56521-63D8-4DA5-BA4B-C4A6A5E353F1",
+                "https://app.candyhouse.co/api/sesame2/e0e56521-63d8-4da5-ba4b-c4a6a5e353f1/cmd",
                 status_code=500,
             )
             assert not self.key_unlocked.lock()
@@ -330,29 +308,27 @@ class TestCHSesame2Cognito:
                 == CHSesame2ShadowStatus.UnlockedWm
             )
 
-    def test_CHSesame2_lock(self):
+    def test_CHSesame2_lock_but_keep_state(self):
         assert self.key_unlocked.lock()
         assert (
-            self.key_unlocked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
+            self.key_unlocked.getDeviceShadowStatus()
+            == CHSesame2ShadowStatus.UnlockedWm
         )
 
-    def test_CHSesame2_unlock(self):
+    def test_CHSesame2_unlock_but_keep_state(self):
         assert self.key_locked.unlock()
-        assert (
-            self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.UnlockedWm
-        )
+        assert self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
 
-    def test_CHSesame2_toggle(self):
+    def test_CHSesame2_toggle_but_keep_state(self):
         assert self.key_locked.toggle()
-        assert (
-            self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.UnlockedWm
-        )
+        assert self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
         assert self.key_locked.toggle()
         assert self.key_locked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
 
         assert self.key_unlocked.toggle()
         assert (
-            self.key_unlocked.getDeviceShadowStatus() == CHSesame2ShadowStatus.LockedWm
+            self.key_unlocked.getDeviceShadowStatus()
+            == CHSesame2ShadowStatus.UnlockedWm
         )
         assert self.key_unlocked.toggle()
         assert (

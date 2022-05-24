@@ -70,7 +70,7 @@ class CognitoAuth:
 
         Args:
             apikey (str): API Key
-            client_id (str): Client ID
+            client_id (str): Client ID (Optional)
         """
         if len(apikey) != 40:
             raise ValueError("Invalid API Key - length should be 40.")
@@ -193,21 +193,5 @@ class CognitoAuth:
         if request.url is None:
             raise TypeError("Failed to retrive HTTP URL to send the request to.")
 
-        (access_key_id, secret_key, session_token) = self.authenticate()
-
-        if IOT_EP in request.url:
-            service = "iotdata"
-        else:
-            request.headers["x-api-key"] = self._apikey
-            service = "execute-api"
-
-        auth = AWS4Auth(
-            access_key_id,
-            secret_key,
-            RegexHelper.get_aws_region(request.url),
-            service,
-            session_token=session_token,
-        )
-        request = auth(request)
-
+        request.headers["x-api-key"] = self._apikey
         return request

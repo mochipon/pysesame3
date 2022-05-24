@@ -96,13 +96,26 @@ class CHSesameBot(SesameLocker):
             if original_status != self.getDeviceShadowStatus():
                 if self._callback is not None and callable(self._callback):
                     logger.debug(
-                        "UUID={}, Custom callback triggered".format(
+                        "UUID={}, Custom callback is triggered".format(
                             self.getDeviceUUID()
                         )
                     )
                     self._callback(self, status)
+                else:
+                    logger.debug(
+                        "UUID={}, Custom callback is not callable".format(
+                            self.getDeviceUUID()
+                        )
+                    )
+            else:
+                logger.debug(
+                    "UUID={}, Custom callback is not triggered; same getDeviceShadowStatus result".format(
+                        self.getDeviceUUID()
+                    )
+                )
         except Exception as err:  # noqa: F841
             # TODO: handle exceptions correctly
+            logger.exception(err)
             pass
 
     def subscribeMechStatus(

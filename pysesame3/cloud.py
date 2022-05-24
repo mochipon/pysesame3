@@ -17,7 +17,7 @@ import requests
 from Crypto.Cipher import AES
 from Crypto.Hash import CMAC
 
-from .const import APIGW_URL, IOT_EP, OFFICIALAPI_URL, AuthType
+from .const import IOT_EP, OFFICIALAPI_URL
 from .history import CHSesame2History
 
 if TYPE_CHECKING:
@@ -95,18 +95,10 @@ class SesameCloud:
         Returns:
             Union[Dict, str]: Current mechanical status of the device. `Dict` if using WebAPIAuth, and `str` if using CognitoAuth.
         """
-        if self._authenticator.login_method == AuthType.WebAPI:
-            url = "{}/{}".format(OFFICIALAPI_URL, device.getDeviceUUID())
-            response = self.requestAPI("GET", url)
-            r_json = response.json()
-            return r_json
-        else:
-            url = "https://{}/things/sesame2/shadow?name={}".format(
-                IOT_EP, device.getDeviceUUID()
-            )
-            response = self.requestAPI("GET", url)
-            r_json = response.json()
-            return r_json["state"]["reported"]["mechst"]
+        url = "{}/{}".format(OFFICIALAPI_URL, device.getDeviceUUID())
+        response = self.requestAPI("GET", url)
+        r_json = response.json()
+        return r_json
 
     def sendCmd(
         self,
@@ -129,14 +121,8 @@ class SesameCloud:
                 device.getDeviceUUID(), cmd, history_tag
             )
         )
-        if self._authenticator.login_method == AuthType.WebAPI:
-            url = "{}/{}/cmd".format(OFFICIALAPI_URL, device.getDeviceUUID())
-            sign = self.getSign(device)
-        elif self._authenticator.login_method == AuthType.SDK:
-            url = "{}/device/v1/iot/sesame2/{}".format(
-                APIGW_URL, device.getDeviceUUID()
-            )
-            sign = self.getSign(device)[0:8]
+        url = "{}/{}/cmd".format(OFFICIALAPI_URL, device.getDeviceUUID())
+        sign = self.getSign(device)
 
         payload = {
             "cmd": int(cmd),
@@ -163,14 +149,9 @@ class SesameCloud:
             list[CHSesame2History]: A list of events.
         """
         logger.debug("getHistoryEntries UUID={}".format(device.getDeviceUUID()))
-        if self._authenticator.login_method == AuthType.WebAPI:
-            url = "{}/{}/history?page=0&lg=10".format(
-                OFFICIALAPI_URL, device.getDeviceUUID()
-            )
-        elif self._authenticator.login_method == AuthType.SDK:
-            url = "{}/device/v1/sesame2/{}/history?page=0&lg=10&a={}".format(
-                APIGW_URL, device.getDeviceUUID(), self.getSign(device)[0:8]
-            )
+        url = "{}/{}/history?page=0&lg=10".format(
+            OFFICIALAPI_URL, device.getDeviceUUID()
+        )
 
         ret = []
 
