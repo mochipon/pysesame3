@@ -5,6 +5,7 @@
 import json
 from unittest.mock import MagicMock, PropertyMock
 
+import boto3
 import pytest
 import requests_mock
 from moto import mock_cognitoidentity
@@ -78,9 +79,16 @@ def mock_cloud():
 @pytest.fixture()
 def mock_cloud_cognito():
     with mock_cognitoidentity():
+        cognito_identity = boto3.client(
+            "cognito-identity", region_name="ap-northeast-1"
+        )
+        identity_pool_data = cognito_identity.create_identity_pool(
+            IdentityPoolName="test_identity_pool", AllowUnauthenticatedIdentities=False
+        )
+
         cl = CognitoAuth(
             apikey="FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE",
-            client_id="ap-northeast-1:fakefakefake",
+            client_id=identity_pool_data["IdentityPoolId"],
         )
         yield cl
 
